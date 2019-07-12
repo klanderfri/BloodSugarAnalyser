@@ -42,9 +42,8 @@ namespace BloodSugarAnalyser
 
             if (ex.Data.Contains("LastLogIndex"))
             {
-                var currentLineIndex = Convert.ToInt32(ex.Data["LastLogIndex"]) + 1;
-                var format = "An unexpected error occured.{0}Last log line: {1}{0}Error Information: {2}";
-                warning = String.Format(format, Environment.NewLine, currentLineIndex, ex.Message);
+                var format = "An unexpected error occured.{0}Last finished log line: {1}{0}Error Information: {2}";
+                warning = String.Format(format, Environment.NewLine, ex.Data["LastLogIndex"], ex.Message);
             }
             else
             {
