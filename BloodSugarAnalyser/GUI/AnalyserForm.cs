@@ -1,8 +1,9 @@
-﻿using System;
+﻿using BloodSugarAnalyser.Logic;
+using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace BloodSugarAnalyser
+namespace BloodSugarAnalyser.GUI
 {
     public partial class AnalyserForm : Form
     {

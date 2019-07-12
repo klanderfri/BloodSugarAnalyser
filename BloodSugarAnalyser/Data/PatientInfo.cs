@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BloodSugarAnalyser
+namespace BloodSugarAnalyser.Data
 {
     /// <summary>
     /// Class for object holding information about the patient the log belongs to.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BloodSugarAnalyser.GUI;
+using System;
 using System.Threading;
 using System.Windows.Forms;
 

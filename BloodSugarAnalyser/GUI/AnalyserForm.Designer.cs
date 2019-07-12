@@ -1,4 +1,4 @@
-﻿namespace BloodSugarAnalyser
+﻿namespace BloodSugarAnalyser.GUI
 {
     partial class AnalyserForm
     {

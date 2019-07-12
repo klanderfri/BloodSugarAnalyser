@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Drawing;
 
-namespace BloodSugarAnalyser
+namespace BloodSugarAnalyser.Logic
 {
     /// <summary>
     /// Class for object representing a straight line in a 2 dimensional coordinate system.

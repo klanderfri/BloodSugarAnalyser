@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 
-namespace BloodSugarAnalyser
+namespace BloodSugarAnalyser.Data
 {
     /// <summary>
     /// Class for object holding the data of a log line.
