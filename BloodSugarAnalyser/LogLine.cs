@@ -82,7 +82,7 @@ namespace BloodSugarAnalyser
         /// <summary>
         /// Tells if the log line holds a blood sugar value.
         /// </summary>
-        public bool IsBloodSugarLog
+        public bool IsGlucoseLog
         {
             get
             {
@@ -123,11 +123,11 @@ namespace BloodSugarAnalyser
         /// </summary>
         private void checkIntegrity()
         {
-            if (IsBloodSugarLog && GlucoseValue == null)
+            if (IsGlucoseLog && GlucoseValue == null)
             {
                 throw new ConstraintException("A blood sugar log without any blood sugar value was found.");
             }
-            if (IsBloodSugarLog && Timestamp == null)
+            if (IsGlucoseLog && Timestamp == null)
             {
                 throw new ConstraintException("A blood sugar log without any timestamp was found.");
             }
