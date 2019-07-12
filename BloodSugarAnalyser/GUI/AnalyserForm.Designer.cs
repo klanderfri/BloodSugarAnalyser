@@ -77,7 +77,7 @@
             0});
             this.nudInclusiveGlucoseTopLimit.Name = "nudInclusiveGlucoseTopLimit";
             this.nudInclusiveGlucoseTopLimit.Size = new System.Drawing.Size(255, 26);
-            this.nudInclusiveGlucoseTopLimit.TabIndex = 1;
+            this.nudInclusiveGlucoseTopLimit.TabIndex = 7;
             this.nudInclusiveGlucoseTopLimit.Value = new decimal(new int[] {
             10,
             0,
@@ -91,7 +91,7 @@
             this.btnAnalyseFile.Margin = new System.Windows.Forms.Padding(3, 3, 10, 3);
             this.btnAnalyseFile.Name = "btnAnalyseFile";
             this.btnAnalyseFile.Size = new System.Drawing.Size(128, 55);
-            this.btnAnalyseFile.TabIndex = 4;
+            this.btnAnalyseFile.TabIndex = 8;
             this.btnAnalyseFile.Text = "Analyse File";
             this.btnAnalyseFile.UseVisualStyleBackColor = true;
             this.btnAnalyseFile.Click += new System.EventHandler(this.btnAnalyseFile_Click);
@@ -121,7 +121,7 @@
             this.tlpMiddleRow.RowCount = 1;
             this.tlpMiddleRow.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpMiddleRow.Size = new System.Drawing.Size(672, 64);
-            this.tlpMiddleRow.TabIndex = 8;
+            this.tlpMiddleRow.TabIndex = 5;
             // 
             // tlpOuterContainer
             // 
@@ -138,7 +138,7 @@
             this.tlpOuterContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tlpOuterContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpOuterContainer.Size = new System.Drawing.Size(678, 381);
-            this.tlpOuterContainer.TabIndex = 9;
+            this.tlpOuterContainer.TabIndex = 0;
             // 
             // tlpTopRow
             // 
@@ -151,7 +151,7 @@
             this.tlpTopRow.RowCount = 1;
             this.tlpTopRow.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tlpTopRow.Size = new System.Drawing.Size(672, 64);
-            this.tlpTopRow.TabIndex = 4;
+            this.tlpTopRow.TabIndex = 1;
             // 
             // gbxClarityLogFile
             // 
@@ -161,7 +161,7 @@
             this.gbxClarityLogFile.Location = new System.Drawing.Point(3, 3);
             this.gbxClarityLogFile.Name = "gbxClarityLogFile";
             this.gbxClarityLogFile.Size = new System.Drawing.Size(666, 58);
-            this.gbxClarityLogFile.TabIndex = 10;
+            this.gbxClarityLogFile.TabIndex = 2;
             this.gbxClarityLogFile.TabStop = false;
             this.gbxClarityLogFile.Text = "Clarity Log File";
             // 
@@ -180,7 +180,7 @@
             this.btnSelectClarityLogFile.Location = new System.Drawing.Point(531, 20);
             this.btnSelectClarityLogFile.Name = "btnSelectClarityLogFile";
             this.btnSelectClarityLogFile.Size = new System.Drawing.Size(129, 32);
-            this.btnSelectClarityLogFile.TabIndex = 0;
+            this.btnSelectClarityLogFile.TabIndex = 4;
             this.btnSelectClarityLogFile.Text = "Select File";
             this.btnSelectClarityLogFile.UseVisualStyleBackColor = true;
             this.btnSelectClarityLogFile.Click += new System.EventHandler(this.btnSelectClarityLogFile_Click);
@@ -204,7 +204,7 @@
             this.rtbAnalyseResult.Location = new System.Drawing.Point(3, 3);
             this.rtbAnalyseResult.Name = "rtbAnalyseResult";
             this.rtbAnalyseResult.Size = new System.Drawing.Size(666, 229);
-            this.rtbAnalyseResult.TabIndex = 6;
+            this.rtbAnalyseResult.TabIndex = 10;
             this.rtbAnalyseResult.Text = "";
             // 
             // AnalyserForm
