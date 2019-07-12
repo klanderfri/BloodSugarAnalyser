@@ -7,7 +7,7 @@ namespace BloodSugarAnalyser
     /// <summary>
     /// Class for object holding the data of a log line.
     /// </summary>
-    class ClarityLogLine
+    class LogLine
     {
         /// <summary>
         /// The index of the log line.
@@ -51,7 +51,7 @@ namespace BloodSugarAnalyser
             }
         }
 
-        public ClarityLogLine(string logLine)
+        public LogLine(string logLine)
         {
             logLine += ",";
             var values = logLine.Split(',');

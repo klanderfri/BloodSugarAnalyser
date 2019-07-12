@@ -31,7 +31,7 @@ namespace BloodSugarAnalyser
         /// Stores the patient info from a log line.
         /// </summary>
         /// <param name="logLine">The log line to store patient info from.</param>
-        public void StoreInfo(ClarityLogLine logLine)
+        public void StoreInfo(LogLine logLine)
         {
             if (logLine.EventType == "FirstName")
             {

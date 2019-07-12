@@ -79,7 +79,7 @@
     <Compile Include="AnalyserForm.Designer.cs">
       <DependentUpon>AnalyserForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ClarityLogLine.cs" />
+    <Compile Include="LogLine.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="LogAnalyser.cs" />
     <Compile Include="MathLine.cs" />

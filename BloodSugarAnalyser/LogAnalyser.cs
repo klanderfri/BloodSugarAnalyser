@@ -20,12 +20,12 @@ namespace BloodSugarAnalyser
         /// <summary>
         /// The last log line the analyser analysed.
         /// </summary>
-        private ClarityLogLine LastLogLine { get; set; }
+        private LogLine LastLogLine { get; set; }
 
         /// <summary>
         /// The last line with a blood sugar value, the analyser analysed.
         /// </summary>
-        private ClarityLogLine LastGlucoseLogLine { get; set; }
+        private LogLine LastGlucoseLogLine { get; set; }
 
         /// <summary>
         /// The area of blood sugar above the top limit (EBS, seconds * mmol/L).
@@ -97,7 +97,7 @@ namespace BloodSugarAnalyser
                     }
 
                     //Analyse the data in the log line.
-                    var logLine = new ClarityLogLine(line);
+                    var logLine = new LogLine(line);
                     analyseLogLine(logLine);
 
                     //Store the last line index to add to any raised exception.
@@ -115,7 +115,7 @@ namespace BloodSugarAnalyser
         /// Analyses a log line and add the information to the log analyse result.
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
-        private void analyseLogLine(ClarityLogLine logLine)
+        private void analyseLogLine(LogLine logLine)
         {
             //Verify the log line order to prevent lines in disorder.
             if (logLine.Index <= (LastLogLine?.Index ?? 0))
@@ -151,7 +151,7 @@ namespace BloodSugarAnalyser
         /// Analyse the log line data about the blood suger.
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
-        private void analyseBloodSugerData(ClarityLogLine logLine)
+        private void analyseBloodSugerData(LogLine logLine)
         {
             //Ignore logs not about blood sugar.
             var bloodSugarLogs = new HashSet<string>() { "EGV", "Calibration" };
@@ -185,7 +185,7 @@ namespace BloodSugarAnalyser
         /// <param name="bloodSugar2">The second blood sugar log.</param>
         /// <param name="inclusiveTopLimit">The inclusive limit of good blood sugar.</param>
         /// <returns>The area above the top limit (seconds * mmol/L).</returns>
-        private static decimal calculateAreaAboveRange(ClarityLogLine log1, ClarityLogLine log2, decimal inclusiveTopLimit)
+        private static decimal calculateAreaAboveRange(LogLine log1, LogLine log2, decimal inclusiveTopLimit)
         {
             //Both values are BELOW the limit.
             if (log1.GlucoseValue <= inclusiveTopLimit && log2.GlucoseValue <= inclusiveTopLimit)
