@@ -181,26 +181,26 @@ namespace BloodSugarAnalyser
         /// <summary>
         /// Calculates the area above the top limit for two blood sugar points.
         /// </summary>
-        /// <param name="bloodSugar1">The first blood sugar log.</param>
-        /// <param name="bloodSugar2">The second blood sugar log.</param>
+        /// <param name="logLine1">The first blood sugar log line.</param>
+        /// <param name="logLine2">The second blood sugar log line.</param>
         /// <param name="inclusiveTopLimit">The inclusive limit of good blood sugar.</param>
         /// <returns>The area above the top limit (seconds * mmol/L).</returns>
-        private static decimal calculateAreaAboveRange(LogLine log1, LogLine log2, decimal inclusiveTopLimit)
+        private static decimal calculateAreaAboveRange(LogLine logLine1, LogLine logLine2, decimal inclusiveTopLimit)
         {
             //Both values are BELOW the limit.
-            if (log1.GlucoseValue <= inclusiveTopLimit && log2.GlucoseValue <= inclusiveTopLimit)
+            if (logLine1.GlucoseValue <= inclusiveTopLimit && logLine2.GlucoseValue <= inclusiveTopLimit)
             {
                 return 0;
             }
 
             //Both values are ABOVE the limit.
-            else if (log1.GlucoseValue > inclusiveTopLimit && log2.GlucoseValue > inclusiveTopLimit)
+            else if (logLine1.GlucoseValue > inclusiveTopLimit && logLine2.GlucoseValue > inclusiveTopLimit)
             {
-                var hoursBetween = calculateTimeDifferenceInHours(log1.Timestamp.Value, log2.Timestamp.Value);
-                var minValue = Math.Min(log1.GlucoseValue.Value, log2.GlucoseValue.Value);
+                var hoursBetween = calculateTimeDifferenceInHours(logLine1.Timestamp.Value, logLine2.Timestamp.Value);
+                var minValue = Math.Min(logLine1.GlucoseValue.Value, logLine2.GlucoseValue.Value);
                 var area = (minValue - inclusiveTopLimit) * hoursBetween;
 
-                var maxValue = Math.Max(log1.GlucoseValue.Value, log2.GlucoseValue.Value);
+                var maxValue = Math.Max(logLine1.GlucoseValue.Value, logLine2.GlucoseValue.Value);
                 var triangleArea = (maxValue - minValue) * hoursBetween / 2;
                 area += triangleArea;
 
@@ -212,9 +212,9 @@ namespace BloodSugarAnalyser
             else
             {
                 //Find the line traversing the blood sugar values.
-                var hoursBetween = calculateTimeDifferenceInHours(log1.Timestamp.Value, log2.Timestamp.Value);
-                var p1 = new PointF(0, (float)(log1.GlucoseValue));
-                var p2 = new PointF((float)hoursBetween, (float)(log2.GlucoseValue));
+                var hoursBetween = calculateTimeDifferenceInHours(logLine1.Timestamp.Value, logLine2.Timestamp.Value);
+                var p1 = new PointF(0, (float)(logLine1.GlucoseValue));
+                var p2 = new PointF((float)hoursBetween, (float)(logLine2.GlucoseValue));
                 var line = new MathLine(p1, p2);
 
                 //Find where the line crosses the top limit.
