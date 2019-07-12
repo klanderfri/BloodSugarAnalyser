@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -34,53 +33,10 @@ namespace BloodSugarAnalyser
             }
 
             //Analyse the file.
-            var log = analyseFile(filepath, nudInclusiveGlucoseTopLimit.Value);
+            var log = new LogAnalyser(filepath, nudInclusiveGlucoseTopLimit.Value);
 
             //Show the analyse result.
             showAnalyseResult(log);
-        }
-
-        /// <summary>
-        /// Analyses a blood sugar log.
-        /// </summary>
-        /// <param name="filepath">The full filepath to the blood sugar log.</param>
-        /// <param name="inclusiveTopLimit">The inclusive top limit of good blood sugar.</param>
-        /// <returns>A log analyser object holding the analyse results.</returns>
-        private LogAnalyser analyseFile(string filepath, decimal inclusiveTopLimit)
-        {
-            var lastIndex = 0;
-
-            try
-            {
-                var log = new LogAnalyser(inclusiveTopLimit);
-                var hasIgnoredTitleRow = false;
-                int currentLogIndex = 0;
-
-                //Analyse the file, row by row (to prevent memory problems when analysing big files).
-                foreach (var line in File.ReadAllLines(filepath))
-                {
-                    //Ignore the first line. It's just a header row.
-                    if (!hasIgnoredTitleRow)
-                    {
-                        hasIgnoredTitleRow = true;
-                        continue;
-                    }
-
-                    //Analyse the data in the log line.
-                    var logLine = new ClarityLogLine(line);
-                    log.AnalyseLogLine(logLine);
-
-                    //Store the last line index to add to any raised exception.
-                    lastIndex = currentLogIndex;
-                }
-
-                return log;
-            }
-            catch (Exception ex)
-            {
-                ex.Data.Add("LastLogIndex", lastIndex);
-                throw;
-            }
         }
 
         /// <summary>

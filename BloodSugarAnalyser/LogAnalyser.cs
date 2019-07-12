@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.IO;
 
 namespace BloodSugarAnalyser
 {
@@ -31,17 +32,19 @@ namespace BloodSugarAnalyser
         public decimal AreaAboveRange { get; private set; }
 
         /// <summary>
-        /// The time of the first log line.
+        /// The average area of blood sugar above the top limit per day (average EBS, seconds * mmol/L/Day).
+        /// </summary>
+        public decimal AverageAreaAboveRangePerDay { get; private set; }
+
+        /// <summary>
+        /// The time of the first log line with a time stamp.
         /// </summary>
         public DateTime? TimeStampStart { get; private set; }
 
         /// <summary>
-        /// The time of the last log line.
+        /// The time of the last log line with a time stamp.
         /// </summary>
-        public DateTime? TimeStampEnd
-        {
-            get { return LastLogLine?.Timestamp; }
-        }
+        public DateTime? TimeStampEnd { get; private set; }
 
         /// <summary>
         /// The inclusive top limit of good blood sugar.
@@ -50,38 +53,85 @@ namespace BloodSugarAnalyser
         public decimal InclusiveTopLimit { get; private set; }
 
         /// <summary>
-        /// The average area of blood sugar above the top limit per day (average EBS, seconds * mmol/L/Day).
-        /// </summary>
-        public decimal AverageAreaAboveRangePerDay
-        {
-            get
-            {
-                var days = Convert.ToDecimal((TimeStampEnd - TimeStampStart).Value.TotalDays);
-                return AreaAboveRange / days;
-            }
-        }
-
-        /// <summary>
         /// Creates an object analysing a blood sugar log.
         /// </summary>
+        /// <param name="filepath">The full filepath to the blood sugar log.</param>
         /// <param name="inclusiveTopLimit">The inclusive top limit of good blood sugar.</param>
-        public LogAnalyser(decimal inclusiveTopLimit)
+        public LogAnalyser(string filepath, decimal inclusiveTopLimit)
         {
+            //Initiate member values.
             PatientInfo = new PatientInfo();
             AreaAboveRange = 0;
             InclusiveTopLimit = inclusiveTopLimit;
+
+            //Analyse file.
+            analyseFile(filepath, inclusiveTopLimit);
+        }
+
+        /// <summary>
+        /// Analyses a blood sugar log file.
+        /// </summary>
+        /// <param name="filepath">The full filepath to the blood sugar log.</param>
+        /// <param name="inclusiveTopLimit">The inclusive top limit of good blood sugar.</param>
+        private void analyseFile(string filepath, decimal inclusiveTopLimit)
+        {
+            var lastIndex = 0;
+
+            try
+            {
+                var hasIgnoredTitleRow = false;
+
+                //Analyse the file, row by row (to prevent memory problems when analysing big files).
+                foreach (var line in File.ReadAllLines(filepath))
+                {
+                    //Ignore the first line. It's just a header row.
+                    if (!hasIgnoredTitleRow)
+                    {
+                        hasIgnoredTitleRow = true;
+                        continue;
+                    }
+
+                    //Analyse the data in the log line.
+                    var logLine = new ClarityLogLine(line);
+                    analyseLogLine(logLine);
+
+                    //Store the last line index to add to any raised exception.
+                    lastIndex = logLine.Index;
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Data.Add("LastLogIndex", lastIndex);
+                throw;
+            }
         }
 
         /// <summary>
         /// Analyses a log line and add the information to the log analyse result.
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
-        public void AnalyseLogLine(ClarityLogLine logLine)
+        private void analyseLogLine(ClarityLogLine logLine)
         {
             //Verify the log line order to prevent lines in disorder.
             if (logLine.Index <= (LastLogLine?.Index ?? 0))
             {
                 throw new ConstraintException("The log line index indicates lines in disorder.");
+            }
+
+            //Store the last log line.
+            if (LastLogLine == null)
+            {
+                LastLogLine = logLine;
+            }
+
+            //Store the timestamps.
+            if (TimeStampStart == null)
+            {
+                TimeStampStart = logLine.Timestamp;
+            }
+            if (logLine.Timestamp != null)
+            {
+                TimeStampEnd = logLine.Timestamp;
             }
 
             //Analyse the data in the log line.
@@ -90,12 +140,6 @@ namespace BloodSugarAnalyser
 
             //Store the current line to be used as the last line in the next iteration.
             LastLogLine = logLine;
-
-            //Store the timestamp of the first log line.
-            if (TimeStampStart == null)
-            {
-                TimeStampStart = logLine.Timestamp;
-            }
         }
 
         /// <summary>
@@ -118,6 +162,13 @@ namespace BloodSugarAnalyser
             //Calculate the area above the top limit.
             AreaAboveRange += calculateAreaAboveRange(LastGlucoseLogLine, logLine, InclusiveTopLimit);
 
+            //Calculate the average area above the top limit.
+            var days = Convert.ToDecimal((TimeStampEnd - TimeStampStart).Value.TotalDays);
+            if (days != 0)
+            {
+                AverageAreaAboveRangePerDay = AreaAboveRange / days;
+            }
+
             //Store the log line for when the next line is analysed.
             LastGlucoseLogLine = logLine;
         }
@@ -129,7 +180,7 @@ namespace BloodSugarAnalyser
         /// <param name="bloodSugar2">The second blood sugar log.</param>
         /// <param name="inclusiveTopLimit">The inclusive limit of good blood sugar.</param>
         /// <returns>The area above the top limit (seconds * mmol/L).</returns>
-        private decimal calculateAreaAboveRange(ClarityLogLine log1, ClarityLogLine log2, decimal inclusiveTopLimit)
+        private static decimal calculateAreaAboveRange(ClarityLogLine log1, ClarityLogLine log2, decimal inclusiveTopLimit)
         {
             //Both values are BELOW the limit.
             if (log1.GlucoseValue <= inclusiveTopLimit && log2.GlucoseValue <= inclusiveTopLimit)
@@ -183,7 +234,7 @@ namespace BloodSugarAnalyser
         /// <param name="d1">The first date/time.</param>
         /// <param name="d2">The second date/time</param>
         /// <returns>The absolute difference in hours between the two points in time.</returns>
-        private decimal calculateTimeDifferenceInHours(DateTime d1, DateTime d2)
+        private static decimal calculateTimeDifferenceInHours(DateTime d1, DateTime d2)
         {
             return Convert.ToDecimal(Math.Abs((d1 - d2).TotalHours));
         }
