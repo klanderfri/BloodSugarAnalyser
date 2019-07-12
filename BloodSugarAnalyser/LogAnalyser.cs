@@ -50,7 +50,12 @@ namespace BloodSugarAnalyser
         /// The inclusive top limit of good blood sugar.
         /// </summary>
         /// <remarks>This value is included within the range of good blood sugar.</remarks>
-        public decimal InclusiveTopLimit { get; private set; }
+        public readonly decimal InclusiveTopLimit;
+
+        /// <summary>
+        /// The full filepath to the blood sugar log.
+        /// </summary>
+        public readonly string Filepath;
 
         /// <summary>
         /// Creates an object analysing a blood sugar log.
@@ -60,20 +65,19 @@ namespace BloodSugarAnalyser
         public LogAnalyser(string filepath, decimal inclusiveTopLimit)
         {
             //Initiate member values.
+            Filepath = filepath;
+            InclusiveTopLimit = inclusiveTopLimit;
             PatientInfo = new PatientInfo();
             AreaAboveRange = 0;
-            InclusiveTopLimit = inclusiveTopLimit;
 
             //Analyse file.
-            analyseFile(filepath, inclusiveTopLimit);
+            analyseFile();
         }
 
         /// <summary>
         /// Analyses a blood sugar log file.
         /// </summary>
-        /// <param name="filepath">The full filepath to the blood sugar log.</param>
-        /// <param name="inclusiveTopLimit">The inclusive top limit of good blood sugar.</param>
-        private void analyseFile(string filepath, decimal inclusiveTopLimit)
+        private void analyseFile()
         {
             var lastIndex = 0;
 
@@ -82,7 +86,7 @@ namespace BloodSugarAnalyser
                 var hasIgnoredTitleRow = false;
 
                 //Analyse the file, row by row (to prevent memory problems when analysing big files).
-                foreach (var line in File.ReadAllLines(filepath))
+                foreach (var line in File.ReadAllLines(Filepath))
                 {
                     //Ignore the first line. It's just a header row.
                     if (!hasIgnoredTitleRow)
