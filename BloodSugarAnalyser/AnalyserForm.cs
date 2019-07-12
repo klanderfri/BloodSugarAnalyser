@@ -66,20 +66,11 @@ namespace BloodSugarAnalyser
                         continue;
                     }
 
-                    //Create a log line container.
-                    var logLine = new ClarityLogLine(line);
-
-                    //Verify the log line order to prevent lines in disorder.
-                    currentLogIndex = logLine.Index;
-                    if (currentLogIndex < lastIndex)
-                    {
-                        throw new ConstraintException("The log line index indicates lines in disorder.");
-                    }
-
                     //Analyse the data in the log line.
+                    var logLine = new ClarityLogLine(line);
                     log.AnalyseLogLine(logLine);
 
-                    //Store the current line index to verify line order in the next iteration.
+                    //Store the last line index to add to any raised exception.
                     lastIndex = currentLogIndex;
                 }
 
