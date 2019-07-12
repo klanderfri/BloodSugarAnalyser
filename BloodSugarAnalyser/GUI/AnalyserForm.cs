@@ -12,7 +12,7 @@ namespace BloodSugarAnalyser.GUI
             InitializeComponent();
         }
 
-        private void btnSelectFile_Click(object sender, EventArgs e)
+        private void btnSelectClarityLogFile_Click(object sender, EventArgs e)
         {
             if (clarityLogFile.ShowDialog() == DialogResult.OK)
             {
