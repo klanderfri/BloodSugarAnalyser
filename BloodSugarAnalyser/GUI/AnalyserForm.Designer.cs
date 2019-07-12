@@ -31,20 +31,22 @@
             this.clarityLogFile = new System.Windows.Forms.OpenFileDialog();
             this.nudInclusiveGlucoseTopLimit = new System.Windows.Forms.NumericUpDown();
             this.btnAnalyseFile = new System.Windows.Forms.Button();
-            this.rtbAnalyseResult = new System.Windows.Forms.RichTextBox();
             this.gbxTopGlucoseLimit = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpMiddleRow = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpOuterContainer = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpTopRow = new System.Windows.Forms.TableLayoutPanel();
             this.gbxClarityLogFile = new System.Windows.Forms.GroupBox();
             this.tbxClarityLogFile = new System.Windows.Forms.TextBox();
             this.btnSelectClarityLogFile = new System.Windows.Forms.Button();
+            this.tlpBottomRow = new System.Windows.Forms.TableLayoutPanel();
+            this.rtbAnalyseResult = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudInclusiveGlucoseTopLimit)).BeginInit();
             this.gbxTopGlucoseLimit.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.tableLayoutPanel3.SuspendLayout();
+            this.tlpMiddleRow.SuspendLayout();
+            this.tlpOuterContainer.SuspendLayout();
+            this.tlpTopRow.SuspendLayout();
             this.gbxClarityLogFile.SuspendLayout();
+            this.tlpBottomRow.SuspendLayout();
             this.SuspendLayout();
             // 
             // clarityLogFile
@@ -94,15 +96,6 @@
             this.btnAnalyseFile.UseVisualStyleBackColor = true;
             this.btnAnalyseFile.Click += new System.EventHandler(this.btnAnalyseFile_Click);
             // 
-            // rtbAnalyseResult
-            // 
-            this.rtbAnalyseResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbAnalyseResult.Location = new System.Drawing.Point(3, 143);
-            this.rtbAnalyseResult.Name = "rtbAnalyseResult";
-            this.rtbAnalyseResult.Size = new System.Drawing.Size(672, 235);
-            this.rtbAnalyseResult.TabIndex = 5;
-            this.rtbAnalyseResult.Text = "";
-            // 
             // gbxTopGlucoseLimit
             // 
             this.gbxTopGlucoseLimit.Controls.Add(this.nudInclusiveGlucoseTopLimit);
@@ -114,51 +107,51 @@
             this.gbxTopGlucoseLimit.TabStop = false;
             this.gbxTopGlucoseLimit.Text = "Inclusive top glucose limit";
             // 
-            // tableLayoutPanel1
+            // tlpMiddleRow
             // 
-            this.tableLayoutPanel1.ColumnCount = 3;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 273F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableLayoutPanel1.Controls.Add(this.gbxTopGlucoseLimit, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.btnAnalyseFile, 2, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 73);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(672, 64);
-            this.tableLayoutPanel1.TabIndex = 8;
+            this.tlpMiddleRow.ColumnCount = 3;
+            this.tlpMiddleRow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 273F));
+            this.tlpMiddleRow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMiddleRow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tlpMiddleRow.Controls.Add(this.gbxTopGlucoseLimit, 0, 0);
+            this.tlpMiddleRow.Controls.Add(this.btnAnalyseFile, 2, 0);
+            this.tlpMiddleRow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMiddleRow.Location = new System.Drawing.Point(3, 73);
+            this.tlpMiddleRow.Name = "tlpMiddleRow";
+            this.tlpMiddleRow.RowCount = 1;
+            this.tlpMiddleRow.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMiddleRow.Size = new System.Drawing.Size(672, 64);
+            this.tlpMiddleRow.TabIndex = 8;
             // 
-            // tableLayoutPanel2
+            // tlpOuterContainer
             // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.rtbAnalyseResult, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 0, 1);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 3;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(678, 381);
-            this.tableLayoutPanel2.TabIndex = 9;
+            this.tlpOuterContainer.ColumnCount = 1;
+            this.tlpOuterContainer.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpOuterContainer.Controls.Add(this.tlpBottomRow, 0, 2);
+            this.tlpOuterContainer.Controls.Add(this.tlpTopRow, 0, 0);
+            this.tlpOuterContainer.Controls.Add(this.tlpMiddleRow, 0, 1);
+            this.tlpOuterContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpOuterContainer.Location = new System.Drawing.Point(0, 0);
+            this.tlpOuterContainer.Name = "tlpOuterContainer";
+            this.tlpOuterContainer.RowCount = 3;
+            this.tlpOuterContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tlpOuterContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tlpOuterContainer.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpOuterContainer.Size = new System.Drawing.Size(678, 381);
+            this.tlpOuterContainer.TabIndex = 9;
             // 
-            // tableLayoutPanel3
+            // tlpTopRow
             // 
-            this.tableLayoutPanel3.ColumnCount = 1;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel3.Controls.Add(this.gbxClarityLogFile, 0, 0);
-            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 1;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(672, 64);
-            this.tableLayoutPanel3.TabIndex = 4;
+            this.tlpTopRow.ColumnCount = 1;
+            this.tlpTopRow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpTopRow.Controls.Add(this.gbxClarityLogFile, 0, 0);
+            this.tlpTopRow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpTopRow.Location = new System.Drawing.Point(3, 3);
+            this.tlpTopRow.Name = "tlpTopRow";
+            this.tlpTopRow.RowCount = 1;
+            this.tlpTopRow.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpTopRow.Size = new System.Drawing.Size(672, 64);
+            this.tlpTopRow.TabIndex = 4;
             // 
             // gbxClarityLogFile
             // 
@@ -192,23 +185,46 @@
             this.btnSelectClarityLogFile.UseVisualStyleBackColor = true;
             this.btnSelectClarityLogFile.Click += new System.EventHandler(this.btnSelectClarityLogFile_Click);
             // 
+            // tlpBottomRow
+            // 
+            this.tlpBottomRow.ColumnCount = 1;
+            this.tlpBottomRow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpBottomRow.Controls.Add(this.rtbAnalyseResult, 0, 0);
+            this.tlpBottomRow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpBottomRow.Location = new System.Drawing.Point(3, 143);
+            this.tlpBottomRow.Name = "tlpBottomRow";
+            this.tlpBottomRow.RowCount = 1;
+            this.tlpBottomRow.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpBottomRow.Size = new System.Drawing.Size(672, 235);
+            this.tlpBottomRow.TabIndex = 9;
+            // 
+            // rtbAnalyseResult
+            // 
+            this.rtbAnalyseResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbAnalyseResult.Location = new System.Drawing.Point(3, 3);
+            this.rtbAnalyseResult.Name = "rtbAnalyseResult";
+            this.rtbAnalyseResult.Size = new System.Drawing.Size(666, 229);
+            this.rtbAnalyseResult.TabIndex = 6;
+            this.rtbAnalyseResult.Text = "";
+            // 
             // AnalyserForm
             // 
             this.AcceptButton = this.btnAnalyseFile;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(678, 381);
-            this.Controls.Add(this.tableLayoutPanel2);
+            this.Controls.Add(this.tlpOuterContainer);
             this.MinimumSize = new System.Drawing.Size(570, 330);
             this.Name = "AnalyserForm";
             this.Text = "Excessive Blood Sugar (EBS) Analyser";
             ((System.ComponentModel.ISupportInitialize)(this.nudInclusiveGlucoseTopLimit)).EndInit();
             this.gbxTopGlucoseLimit.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tlpMiddleRow.ResumeLayout(false);
+            this.tlpOuterContainer.ResumeLayout(false);
+            this.tlpTopRow.ResumeLayout(false);
             this.gbxClarityLogFile.ResumeLayout(false);
             this.gbxClarityLogFile.PerformLayout();
+            this.tlpBottomRow.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -217,14 +233,15 @@
         private System.Windows.Forms.OpenFileDialog clarityLogFile;
         private System.Windows.Forms.NumericUpDown nudInclusiveGlucoseTopLimit;
         private System.Windows.Forms.Button btnAnalyseFile;
-        private System.Windows.Forms.RichTextBox rtbAnalyseResult;
         private System.Windows.Forms.GroupBox gbxTopGlucoseLimit;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.TableLayoutPanel tlpMiddleRow;
+        private System.Windows.Forms.TableLayoutPanel tlpOuterContainer;
+        private System.Windows.Forms.TableLayoutPanel tlpTopRow;
         private System.Windows.Forms.GroupBox gbxClarityLogFile;
         private System.Windows.Forms.TextBox tbxClarityLogFile;
         private System.Windows.Forms.Button btnSelectClarityLogFile;
+        private System.Windows.Forms.TableLayoutPanel tlpBottomRow;
+        private System.Windows.Forms.RichTextBox rtbAnalyseResult;
     }
 }
 
