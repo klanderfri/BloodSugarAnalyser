@@ -4,6 +4,9 @@ using System.Data;
 
 namespace BloodSugarAnalyser
 {
+    /// <summary>
+    /// Class for object holding the data of a log line.
+    /// </summary>
     class ClarityLogLine
     {
         /// <summary>
