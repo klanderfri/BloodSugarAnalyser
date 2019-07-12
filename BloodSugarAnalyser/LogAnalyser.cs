@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Text;
 
 namespace BloodSugarAnalyser
 {
@@ -241,6 +242,36 @@ namespace BloodSugarAnalyser
         private static decimal calculateTimeDifferenceInHours(DateTime d1, DateTime d2)
         {
             return Convert.ToDecimal(Math.Abs((d1 - d2).TotalHours));
+        }
+
+        /// <summary>
+        /// Returns the log analyse result as a human readable string.
+        /// </summary>
+        /// <returns>The analyse reasult as a string.</returns>
+        public string GetResult()
+        {
+            var result = new StringBuilder();
+
+            result.AppendFormat(
+                "Patient: {0} {1} (PID {2})",
+                PatientInfo.FirstName,
+                PatientInfo.Surname,
+                PatientInfo.PatientID);
+            result.AppendLine();
+
+            result.AppendFormat("Total EBS: {0} h*mmol/L", Math.Round(AreaAboveRange, 2));
+            result.AppendLine();
+
+            result.AppendFormat("EBS per day: {0} h*mmol/L", Math.Round(AverageAreaAboveRangePerDay, 2));
+            result.AppendLine();
+
+            result.AppendFormat("Period start: {0}", TimeStampStart);
+            result.AppendLine();
+
+            result.AppendFormat("Period end: {0}", TimeStampEnd);
+            result.AppendLine();
+
+            return result.ToString();
         }
     }
 }
