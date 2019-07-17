@@ -13,7 +13,7 @@ In Dexcom Clarity you can see how much of your time you spent exceeding your top
 ## How to download Clarity export files
 *Disclaimer! Dexcom Clarity is an external application I have no control nor any responsibility for. Ask them, not me, for help if you fail to download the export files.*
 1. Go to https://clarity.dexcom.eu/
-2. Select "Dexcom Clarity for home users".
+2. Select "Dexcom Clarity for Home Users".
 3. Log in.
 4. Click on "Reports" in the topmost menu.
 5. Click on "Export".
