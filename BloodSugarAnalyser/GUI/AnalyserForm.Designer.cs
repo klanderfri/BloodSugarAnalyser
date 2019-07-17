@@ -51,7 +51,8 @@
             // 
             // clarityLogFile
             // 
-            this.clarityLogFile.Filter = "Clarity Export Files (*.csv)|*.csv";
+            this.clarityLogFile.Filter = "Clarity Export Files (CLARITY_*.csv)|CLARITY_*.csv|Comma-separated values (*.csv)" +
+    "|*.csv";
             this.clarityLogFile.Title = "Open Clarity Export File";
             // 
             // nudInclusiveGlucoseTopLimit
