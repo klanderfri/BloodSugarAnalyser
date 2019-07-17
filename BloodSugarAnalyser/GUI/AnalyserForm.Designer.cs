@@ -178,9 +178,9 @@
             // btnSelectClarityLogFile
             // 
             this.btnSelectClarityLogFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSelectClarityLogFile.Location = new System.Drawing.Point(531, 20);
+            this.btnSelectClarityLogFile.Location = new System.Drawing.Point(531, 22);
             this.btnSelectClarityLogFile.Name = "btnSelectClarityLogFile";
-            this.btnSelectClarityLogFile.Size = new System.Drawing.Size(129, 32);
+            this.btnSelectClarityLogFile.Size = new System.Drawing.Size(129, 34);
             this.btnSelectClarityLogFile.TabIndex = 4;
             this.btnSelectClarityLogFile.Text = "Select File";
             this.btnSelectClarityLogFile.UseVisualStyleBackColor = true;
