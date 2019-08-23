@@ -21,6 +21,23 @@ In Dexcom Clarity you can see how much of your time you spent exceeding your top
 7. An export file is downloaded. It has a name like "CLARITY_Export_Testsson_Kalle_001_2019-07-12_093810.csv".
 8. Done
 
+## How to download Freestyle Libre export files
+*Disclaimer! Instructions below are for Swedish users. You will find your version in a similar way. Also, see the disclaimer for Clarity export files!*
+1. Go to the Freestyle Libre website for your country, http://www.freestylelibre.com/
+2. Select "Kundservice" (Customer Service) in the menu.
+3. Under "Produkter" (Products) you'll find "Programvara" (Software). Click it.
+4. Under "Nedladdning" (Download), select "Dataprogram" (Data Software).
+5. Select your version, Mac or PC (take PC if you're unsure).
+6. Run the downloaded file and install it by following the instructions given.
+7. Open the installed Freestyle Libre software.
+8. Follow any instructions given by the software.
+9. Connect your Freestyle Libre reader to your computer with an USB cable.
+10. Wait for the software to recognise the reader and follow any of its instructions.
+11. Click "Arkiv" (Archive) in the menu.
+12. Select "Exportera data" (Export data).
+13. Select a filename for the export file and save the file to disk.
+14. Done.
+
 ## How to run the analyser
 1. Open the BloodSugarAnalyser program.
 2. Select the previously exported file.
