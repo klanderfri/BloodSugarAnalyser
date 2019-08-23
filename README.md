@@ -10,7 +10,7 @@ When you use your Dexcom CGM, you choose a target range you want to keep your bl
 ### Why is EBS useful?
 In Dexcom Clarity you can see how much of your time you spent exceeding your top target limit, but you can't see with how much. Two hours at 16 mmol/L counts as much as two hours at 10,1 mmol/L, even though the former is much worse. EBS on the other hand will show you a value of 12 hmmol/L (milli-mole hours per liter, an unintuitive unit for area in a 2-dimensional system with glucose and time as axes) for the first high and 0,2 hmmol/L for the second high, indicating how bad the highs really were.
 
-## How to download Clarity export files
+## How to download Dexcom Clarity export files
 *Disclaimer! Dexcom Clarity is an external application I have no control nor any responsibility for. Ask them, not me, for help if you fail to download the export files.*
 1. Go to https://clarity.dexcom.eu/
 2. Select "Dexcom Clarity for Home Users".
