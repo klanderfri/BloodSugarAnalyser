@@ -7,7 +7,7 @@ namespace BloodSugarAnalyser.Data
     /// <summary>
     /// Class for object holding the data of a log line.
     /// </summary>
-    class LogLine
+    public class LogLine
     {
         /// <summary>
         /// The index of the log line.

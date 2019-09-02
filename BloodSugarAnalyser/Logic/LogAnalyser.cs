@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace BloodSugarAnalyser.Logic
 {
@@ -85,20 +86,15 @@ namespace BloodSugarAnalyser.Logic
 
             try
             {
-                var hasIgnoredTitleRow = false;
+                //Fetch the line collection.
+                var rawLines = File.ReadLines(Filepath);
+                var fileType = getFileType(rawLines);
+                var lineCollection = getLineCollection(rawLines, fileType);
 
                 //Analyse the file, row by row (to prevent memory problems when analysing big files).
-                foreach (var line in File.ReadAllLines(Filepath))
+                foreach (var logLine in lineCollection.ReadLines())
                 {
-                    //Ignore the first line. It's just a header row.
-                    if (!hasIgnoredTitleRow)
-                    {
-                        hasIgnoredTitleRow = true;
-                        continue;
-                    }
-
                     //Analyse the data in the log line.
-                    var logLine = new LogLine(line);
                     analyseLogLine(logLine);
 
                     //Store the last line index to add to any raised exception.
@@ -109,6 +105,45 @@ namespace BloodSugarAnalyser.Logic
             {
                 ex.Data.Add("LastLogIndex", lastIndex);
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Determines what kind of log file we are working with.
+        /// </summary>
+        /// <param name="rawLines">An iterator to the lines in the file.</param>
+        /// <returns>The type of the log file.</returns>
+        private ExportDataType getFileType(IEnumerable<string> rawLines)
+        {
+            var patientID = rawLines.Skip(1).FirstOrDefault();
+
+            if (String.IsNullOrWhiteSpace(patientID))
+            {
+                return ExportDataType.Unknown;
+            }
+
+            if (patientID.Contains("#") && !patientID.Contains(","))
+            {
+                return ExportDataType.FreestyleLibre;
+            }
+            else
+            {
+                return ExportDataType.DexcomClarity;
+            }
+        }
+
+        private ILogLineCollection getLineCollection(IEnumerable<string> rawLines, ExportDataType fileType)
+        {
+            switch (fileType)
+            {
+                case ExportDataType.DexcomClarity:
+                    return new DexcomClarityLog(rawLines);
+                case ExportDataType.FreestyleLibre:
+                    return new FreestyleLibreLog(rawLines);
+                default:
+                    var format = "Unknown format '{0}' of variable '{1}'.";
+                    var message = String.Format(format, fileType, nameof(fileType));
+                    throw new FormatException(message);
             }
         }
 

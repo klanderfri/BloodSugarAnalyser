@@ -81,7 +81,12 @@
     </Compile>
     <Compile Include="Data\LogLine.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Logic\DexcomClarityLog.cs" />
+    <Compile Include="Logic\ExportDataType.cs" />
+    <Compile Include="Logic\FreestyleLibreLog.cs" />
+    <Compile Include="Logic\ILogLineCollection.cs" />
     <Compile Include="Logic\LogAnalyser.cs" />
+    <Compile Include="Logic\LogLineCollection.cs" />
     <Compile Include="Logic\MathLine.cs" />
     <Compile Include="Data\PatientInfo.cs" />
     <Compile Include="Program.cs" />

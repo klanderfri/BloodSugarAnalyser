@@ -14,9 +14,9 @@ namespace BloodSugarAnalyser.GUI
 
         private void btnSelectClarityLogFile_Click(object sender, EventArgs e)
         {
-            if (clarityLogFile.ShowDialog() == DialogResult.OK)
+            if (bloodsugarLogFile.ShowDialog() == DialogResult.OK)
             {
-                tbxClarityLogFile.Text = clarityLogFile.FileName;
+                tbxClarityLogFile.Text = bloodsugarLogFile.FileName;
             }
         }
 
