@@ -9,15 +9,22 @@ namespace BloodSugarAnalyser.Logic
 {
     public abstract class LogLineCollection : ILogLineCollection
     {
-        protected IEnumerable<string> RawLines { get; set; }
-
+        private IEnumerable<string> RawLines { get; set; }
         public abstract ExportDataType Type { get; }
 
-        public abstract IEnumerable<LogLine> ReadLines();
+        protected abstract LogLine GetLogLineFromRawLine(string rawLine);
 
         protected LogLineCollection(IEnumerable<string> rawLines)
         {
             RawLines = rawLines;
+        }
+
+        public IEnumerable<LogLine> ReadLines()
+        {
+            foreach (var rawLine in RawLines)
+            {
+                yield return GetLogLineFromRawLine(rawLine);
+            }
         }
     }
 }

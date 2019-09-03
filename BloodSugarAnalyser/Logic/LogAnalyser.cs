@@ -132,6 +132,12 @@ namespace BloodSugarAnalyser.Logic
             }
         }
 
+        /// <summary>
+        /// Gets a collection representing the log line information in the file.
+        /// </summary>
+        /// <param name="rawLines">The raw log lines from the file.</param>
+        /// <param name="fileType">The type of the export file.</param>
+        /// <returns>A collection representing the log line information.</returns>
         private ILogLineCollection getLineCollection(IEnumerable<string> rawLines, ExportDataType fileType)
         {
             switch (fileType)

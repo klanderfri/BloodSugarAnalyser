@@ -12,9 +12,9 @@ namespace BloodSugarAnalyser.Logic
         public override ExportDataType Type => ExportDataType.FreestyleLibre;
 
         public FreestyleLibreLog(IEnumerable<string> rawLines)
-            : base(rawLines) { }
+            : base(rawLines.Skip(3)) { }
 
-        public override IEnumerable<LogLine> ReadLines()
+        protected override LogLine GetLogLineFromRawLine(string rawLine)
         {
             throw new NotImplementedException();
         }
