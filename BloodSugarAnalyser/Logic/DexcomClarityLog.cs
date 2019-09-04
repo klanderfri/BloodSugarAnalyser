@@ -29,7 +29,7 @@ namespace BloodSugarAnalyser.Logic
             {
                 var logLine = new DexcomClarityLogLine(rawLine)
                 {
-                    Index = Convert.ToInt32(values[0]),
+                    Index = Convert.ToUInt64(values[0]),
                     Timestamp = values[1] == "" ? (DateTime?)null : Convert.ToDateTime(values[1]),
                     EventType = getEventtypeFromString(values[2]),
                     EventSubtype = values[3] == "" ? null : values[3],
@@ -95,7 +95,7 @@ namespace BloodSugarAnalyser.Logic
         /// <param name="firstIndex">The first provided index.</param>
         /// <param name="secondIndex">The second provided index.</param>
         /// <returns>TRUE if the indexes are in order, else FALSE.</returns>
-        public override bool AssertIndexesAreInOrder(int firstIndex, int secondIndex)
+        public override bool AssertIndexesAreInOrder(ulong firstIndex, ulong secondIndex)
         {
             return firstIndex < secondIndex;
         }

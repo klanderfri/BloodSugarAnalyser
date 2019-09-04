@@ -83,7 +83,7 @@ namespace BloodSugarAnalyser.Logic
         /// </summary>
         private void analyseFile()
         {
-            var lastIndex = 0;
+            ulong lastIndex = 0;
 
             try
             {
@@ -162,7 +162,7 @@ namespace BloodSugarAnalyser.Logic
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
         /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
-        private void analyseLogLine(ILogLine logLine, Func<int, int, bool> indexesAreInOrder)
+        private void analyseLogLine(ILogLine logLine, Func<ulong, ulong, bool> indexesAreInOrder)
         {
             //Verify the log line order to prevent lines in disorder.
             if (!indexesAreInOrder(LastLogLine?.Index ?? 0, logLine.Index))

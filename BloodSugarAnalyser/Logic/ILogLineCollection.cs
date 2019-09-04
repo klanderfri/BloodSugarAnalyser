@@ -38,6 +38,6 @@ namespace BloodSugarAnalyser.Logic
         /// <param name="firstIndex">The first provided index.</param>
         /// <param name="secondIndex">The second provided index.</param>
         /// <returns>TRUE if the indexes are in order, else FALSE.</returns>
-        bool AssertIndexesAreInOrder(int firstIndex, int secondIndex);
+        bool AssertIndexesAreInOrder(ulong firstIndex, ulong secondIndex);
     }
 }

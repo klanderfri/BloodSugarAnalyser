@@ -26,7 +26,7 @@ namespace BloodSugarAnalyser.Logic
             {
                 var logLine = new FreestyleLibreLogLine(rawLine)
                 {
-                    Index = Convert.ToInt32(values[0]),
+                    Index = Convert.ToUInt64(values[0]),
                     Timestamp = values[1] == "" ? (DateTime?)null : Convert.ToDateTime(values[1]),
                     GlucoseValue = GetDecimalFromString(values[3]) ?? GetDecimalFromString(values[4]) ?? GetDecimalFromString(values[12]),
                     EventType = getEventtypeFromData(values[3], values[4], values[12]),
@@ -59,7 +59,7 @@ namespace BloodSugarAnalyser.Logic
 
         private bool isNumeric(string data)
         {
-            return !String.IsNullOrWhiteSpace(data) && int.TryParse(data, out int _);
+            return !String.IsNullOrWhiteSpace(data) && decimal.TryParse(data, out decimal _);
         }
 
         protected override void ExtractHeaderInformation(string rawLine, int lineIndex)
@@ -90,7 +90,7 @@ namespace BloodSugarAnalyser.Logic
         /// <param name="firstIndex">The first provided index.</param>
         /// <param name="secondIndex">The second provided index.</param>
         /// <returns>TRUE if the indexes are in order, else FALSE.</returns>
-        public override bool AssertIndexesAreInOrder(int firstIndex, int secondIndex)
+        public override bool AssertIndexesAreInOrder(ulong firstIndex, ulong secondIndex)
         {
             return firstIndex <= secondIndex;
         }

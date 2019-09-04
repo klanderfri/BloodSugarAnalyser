@@ -18,7 +18,7 @@ namespace BloodSugarAnalyser.Logic
 
         protected abstract Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex);
         protected abstract void ExtractHeaderInformation(string rawLine, int lineIndex);
-        public abstract bool AssertIndexesAreInOrder(int firstIndex, int secondIndex);
+        public abstract bool AssertIndexesAreInOrder(ulong firstIndex, ulong secondIndex);
 
         protected LogLineCollection(IEnumerable<string> rawLines)
         {

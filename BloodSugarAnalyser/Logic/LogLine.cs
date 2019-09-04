@@ -21,7 +21,7 @@ namespace BloodSugarAnalyser.Logic
         /// <summary>
         /// The index of the log line.
         /// </summary>
-        public int Index { get; set; }
+        public ulong Index { get; set; }
 
         /// <summary>
         /// The time when the log line was created.
