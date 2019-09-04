@@ -13,7 +13,7 @@ namespace BloodSugarAnalyser.Logic
         public override ExportDataType Type => ExportDataType.FreestyleLibre;
 
         public FreestyleLibreLog(IEnumerable<string> rawLines)
-            : base(rawLines, 3) { }
+            : base(rawLines) { }
 
         protected override Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex)
         {

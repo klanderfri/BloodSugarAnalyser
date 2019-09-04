@@ -13,7 +13,7 @@ namespace BloodSugarAnalyser.Logic
         public override ExportDataType Type => ExportDataType.DexcomClarity;
 
         public DexcomClarityLog(IEnumerable<string> rawLines)
-            : base(rawLines, 1) { }
+            : base(rawLines) { }
 
         protected override Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex)
         {

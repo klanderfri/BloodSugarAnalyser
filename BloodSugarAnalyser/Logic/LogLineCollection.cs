@@ -13,16 +13,14 @@ namespace BloodSugarAnalyser.Logic
         public abstract ExportDataType Type { get; }
         public PatientInfo PatientInfo { get; protected set; }
         private IEnumerable<string> RawLines { get; set; }
-        private int NumberOfHeaderLines { get; set; }
 
         protected abstract Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex);
         protected abstract void ExtractHeaderInformation(string rawLine, int lineIndex);
 
-        protected LogLineCollection(IEnumerable<string> rawLines, int numberOfHeaderLines)
+        protected LogLineCollection(IEnumerable<string> rawLines)
         {
             RawLines = rawLines;
             PatientInfo = new PatientInfo();
-            NumberOfHeaderLines = numberOfHeaderLines;
         }
 
         public IEnumerable<ILogLine> ReadLines()
