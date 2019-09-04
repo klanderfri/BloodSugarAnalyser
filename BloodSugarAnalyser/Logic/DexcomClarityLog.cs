@@ -10,14 +10,16 @@ namespace BloodSugarAnalyser.Logic
 {
     public class DexcomClarityLog : LogLineCollection
     {
-        public override ExportDataType Type => ExportDataType.DexcomClarity;
+        public override CgmSystem CgmSystem => CgmSystem.DexcomClarity;
+        public override TimeSpan WarmUpPeriod => new TimeSpan(2, 0, 0);
+        public override char RawValueSeparator => ',';
 
         public DexcomClarityLog(IEnumerable<string> rawLines)
             : base(rawLines) { }
 
         protected override Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex)
         {
-            var values = getLineValues(rawLine);
+            var values = SplitRawLineIntoValues(rawLine);
 
             if (isHeaderLine(values))
             {
@@ -34,23 +36,18 @@ namespace BloodSugarAnalyser.Logic
                     PatientInfo = values[4] == "" ? null : values[4],
                     DeviceInfo = values[5] == "" ? null : values[5],
                     SourceDeviceID = values[6] == "" ? null : values[6],
-                    GlucoseValue = convertToDecimal(values[7]),
-                    InsulinValue = convertToDecimal(values[8]),
+                    GlucoseValue = GetDecimalFromString(values[7]),
+                    InsulinValue = GetDecimalFromString(values[8]),
                     CarbValue = values[9] == "" ? (int?)null : Convert.ToInt32(values[9]),
                     Duration = values[10] == "" ? (TimeSpan?)null : TimeSpan.Parse(values[10]),
-                    GlucoseRateOfChange = convertToDecimal(values[11]),
+                    GlucoseRateOfChange = GetDecimalFromString(values[11]),
                     TransmitterTime = values[12] == "" ? (long?)null : Convert.ToInt64(values[12]),
                     TransmitterID = values[13] == "" ? null : values[13],
                 };
+                logLine.CheckIntegrity();
 
                 return new Tuple<LogLineType, ILogLine>(LogLineType.DataLine, logLine);
             }
-        }
-
-        private static string[] getLineValues(string rawLine)
-        {
-            rawLine += ",";
-            return rawLine.Split(',');
         }
 
         private bool isHeaderLine(string[] lineValues)
@@ -60,7 +57,7 @@ namespace BloodSugarAnalyser.Logic
 
         protected override void ExtractHeaderInformation(string rawLine, int lineIndex)
         {
-            var values = getLineValues(rawLine);
+            var values = SplitRawLineIntoValues(rawLine);
 
             switch (values[2])
             {
@@ -93,23 +90,14 @@ namespace BloodSugarAnalyser.Logic
         }
 
         /// <summary>
-        /// Converts a Clarity input string to decimal.
+        /// Verifies that two indexes are in order.
         /// </summary>
-        /// <param name="input">The text string to convert.</param>
-        /// <returns>A decimal value.</returns>
-        private decimal? convertToDecimal(string input)
+        /// <param name="firstIndex">The first provided index.</param>
+        /// <param name="secondIndex">The second provided index.</param>
+        /// <returns>TRUE if the indexes are in order, else FALSE.</returns>
+        public override bool AssertIndexesAreInOrder(int firstIndex, int secondIndex)
         {
-            if (input == "")
-            {
-                return null;
-            }
-            else
-            {
-                input = input
-                    .Replace("Low", "0")
-                    .Replace('.', ',');
-                return Convert.ToDecimal(input);
-            }
+            return firstIndex < secondIndex;
         }
     }
 }

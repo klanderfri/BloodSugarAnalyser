@@ -73,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\FreestyleLibreLogLine.cs" />
     <Compile Include="Enums\LogLineType.cs" />
     <Compile Include="GUI\AnalyserForm.cs">
       <SubType>Form</SubType>
@@ -84,7 +85,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Enums\LogEventType.cs" />
     <Compile Include="Logic\DexcomClarityLog.cs" />
-    <Compile Include="Enums\ExportDataType.cs" />
+    <Compile Include="Enums\CgmSystem.cs" />
     <Compile Include="Logic\FreestyleLibreLog.cs" />
     <Compile Include="Logic\ILogLine.cs" />
     <Compile Include="Logic\ILogLineCollection.cs" />

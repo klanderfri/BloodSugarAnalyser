@@ -96,7 +96,7 @@ namespace BloodSugarAnalyser.Logic
                 foreach (var logLine in lineCollection.ReadLines())
                 {
                     //Analyse the data in the log line.
-                    analyseLogLine(logLine);
+                    analyseLogLine(logLine, lineCollection.AssertIndexesAreInOrder);
 
                     //Store the last line index to add to any raised exception.
                     lastIndex = logLine.Index;
@@ -117,22 +117,22 @@ namespace BloodSugarAnalyser.Logic
         /// </summary>
         /// <param name="rawLines">An iterator to the lines in the file.</param>
         /// <returns>The type of the log file.</returns>
-        private ExportDataType getFileType(IEnumerable<string> rawLines)
+        private CgmSystem getFileType(IEnumerable<string> rawLines)
         {
             var patientID = rawLines.Skip(1).FirstOrDefault();
 
             if (String.IsNullOrWhiteSpace(patientID))
             {
-                return ExportDataType.Unknown;
+                return CgmSystem.Unknown;
             }
 
             if (patientID.Contains("#") && !patientID.Contains(","))
             {
-                return ExportDataType.FreestyleLibre;
+                return CgmSystem.FreestyleLibre;
             }
             else
             {
-                return ExportDataType.DexcomClarity;
+                return CgmSystem.DexcomClarity;
             }
         }
 
@@ -142,13 +142,13 @@ namespace BloodSugarAnalyser.Logic
         /// <param name="rawLines">The raw log lines from the file.</param>
         /// <param name="fileType">The type of the export file.</param>
         /// <returns>A collection representing the log line information.</returns>
-        private ILogLineCollection getLineCollection(IEnumerable<string> rawLines, ExportDataType fileType)
+        private ILogLineCollection getLineCollection(IEnumerable<string> rawLines, CgmSystem fileType)
         {
             switch (fileType)
             {
-                case ExportDataType.DexcomClarity:
+                case CgmSystem.DexcomClarity:
                     return new DexcomClarityLog(rawLines);
-                case ExportDataType.FreestyleLibre:
+                case CgmSystem.FreestyleLibre:
                     return new FreestyleLibreLog(rawLines);
                 default:
                     var format = "Unknown format '{0}' of variable '{1}'.";
@@ -161,10 +161,11 @@ namespace BloodSugarAnalyser.Logic
         /// Analyses a log line and add the information to the log analyse result.
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
-        private void analyseLogLine(ILogLine logLine)
+        /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
+        private void analyseLogLine(ILogLine logLine, Func<int, int, bool> indexesAreInOrder)
         {
             //Verify the log line order to prevent lines in disorder.
-            if (logLine.Index <= (LastLogLine?.Index ?? 0))
+            if (!indexesAreInOrder(LastLogLine?.Index ?? 0, logLine.Index))
             {
                 throw new ConstraintException("The log line index indicates lines in disorder.");
             }

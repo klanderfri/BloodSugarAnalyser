@@ -1,6 +1,6 @@
 ﻿namespace BloodSugarAnalyser.Enums
 {
-    public enum ExportDataType
+    public enum CgmSystem
     {
         Unknown,
         DexcomClarity,

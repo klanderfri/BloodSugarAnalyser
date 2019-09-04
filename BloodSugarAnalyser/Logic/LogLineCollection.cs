@@ -10,12 +10,15 @@ namespace BloodSugarAnalyser.Logic
 {
     public abstract class LogLineCollection : ILogLineCollection
     {
-        public abstract ExportDataType Type { get; }
+        public abstract CgmSystem CgmSystem { get; }
         public PatientInfo PatientInfo { get; protected set; }
         private IEnumerable<string> RawLines { get; set; }
+        public abstract char RawValueSeparator { get; }
+        public abstract TimeSpan WarmUpPeriod { get; }
 
         protected abstract Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex);
         protected abstract void ExtractHeaderInformation(string rawLine, int lineIndex);
+        public abstract bool AssertIndexesAreInOrder(int firstIndex, int secondIndex);
 
         protected LogLineCollection(IEnumerable<string> rawLines)
         {
@@ -33,6 +36,7 @@ namespace BloodSugarAnalyser.Logic
                 switch (result.Item1)
                 {
                     case LogLineType.DataLine:
+                        result.Item2.CheckIntegrity();
                         yield return result.Item2;
                         break;
 
@@ -47,6 +51,32 @@ namespace BloodSugarAnalyser.Logic
                 }
 
                 index++;
+            }
+        }
+
+        protected string[] SplitRawLineIntoValues(string rawLine)
+        {
+            rawLine += Convert.ToString(RawValueSeparator);
+            return rawLine.Split(RawValueSeparator);
+        }
+
+        /// <summary>
+        /// Converts an input string to decimal.
+        /// </summary>
+        /// <param name="input">The text string to convert.</param>
+        /// <returns>A decimal value.</returns>
+        protected decimal? GetDecimalFromString(string input)
+        {
+            if (input == "")
+            {
+                return null;
+            }
+            else
+            {
+                input = input
+                    .Replace("Low", "0")
+                    .Replace('.', ',');
+                return Convert.ToDecimal(input);
             }
         }
     }

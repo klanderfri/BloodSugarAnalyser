@@ -11,7 +11,6 @@ namespace BloodSugarAnalyser.Data
     /// </summary>
     public class DexcomClarityLogLine : LogLine
     {
-
         /// <summary>
         /// The subtype of event that caused the creation of the log line (for example, the type of alarm).
         /// </summary>
