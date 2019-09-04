@@ -89,6 +89,7 @@
     <Compile Include="Logic\ILogLine.cs" />
     <Compile Include="Logic\ILogLineCollection.cs" />
     <Compile Include="Logic\LogAnalyser.cs" />
+    <Compile Include="Logic\LogLine.cs" />
     <Compile Include="Logic\LogLineCollection.cs" />
     <Compile Include="Logic\MathLine.cs" />
     <Compile Include="Data\PatientInfo.cs" />
