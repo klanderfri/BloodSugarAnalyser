@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Linq;
+using BloodSugarAnalyser.Enums;
 
 namespace BloodSugarAnalyser.Logic
 {
@@ -22,12 +23,12 @@ namespace BloodSugarAnalyser.Logic
         /// <summary>
         /// The last log line the analyser analysed.
         /// </summary>
-        private LogLine LastLogLine { get; set; }
+        private ILogLine LastLogLine { get; set; }
 
         /// <summary>
         /// The last line with a blood sugar value, the analyser analysed.
         /// </summary>
-        private LogLine LastGlucoseLogLine { get; set; }
+        private ILogLine LastGlucoseLogLine { get; set; }
 
         /// <summary>
         /// The area of blood sugar above the top limit (EBS, seconds * mmol/L).
@@ -100,6 +101,9 @@ namespace BloodSugarAnalyser.Logic
                     //Store the last line index to add to any raised exception.
                     lastIndex = logLine.Index;
                 }
+
+                //Store the patient info.
+                PatientInfo = lineCollection.PatientInfo;
             }
             catch (Exception ex)
             {
@@ -157,7 +161,7 @@ namespace BloodSugarAnalyser.Logic
         /// Analyses a log line and add the information to the log analyse result.
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
-        private void analyseLogLine(LogLine logLine)
+        private void analyseLogLine(ILogLine logLine)
         {
             //Verify the log line order to prevent lines in disorder.
             if (logLine.Index <= (LastLogLine?.Index ?? 0))
@@ -182,7 +186,6 @@ namespace BloodSugarAnalyser.Logic
             }
 
             //Analyse the data in the log line.
-            PatientInfo.StoreInfo(logLine);
             analyseBloodSugerData(logLine);
 
             //Store the current line to be used as the last line in the next iteration.
@@ -193,11 +196,10 @@ namespace BloodSugarAnalyser.Logic
         /// Analyse the log line data about the blood suger.
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
-        private void analyseBloodSugerData(LogLine logLine)
+        private void analyseBloodSugerData(ILogLine logLine)
         {
             //Ignore logs not about blood sugar.
-            var bloodSugarLogs = new HashSet<string>() { "EGV", "Calibration" };
-            if (!bloodSugarLogs.Contains(logLine.EventType)) { return; }
+            if (!logLine.IsGlucoseLog) { return; }
 
             //Store the first log and continue to the next one.
             if (LastGlucoseLogLine == null)
@@ -227,7 +229,7 @@ namespace BloodSugarAnalyser.Logic
         /// <param name="logLine2">The second blood sugar log line.</param>
         /// <param name="inclusiveTopLimit">The inclusive limit of good blood sugar.</param>
         /// <returns>The area above the top limit (seconds * mmol/L).</returns>
-        private static decimal calculateAreaAboveRange(LogLine logLine1, LogLine logLine2, decimal inclusiveTopLimit)
+        private static decimal calculateAreaAboveRange(ILogLine logLine1, ILogLine logLine2, decimal inclusiveTopLimit)
         {
             //Both values are BELOW the limit.
             if (logLine1.GlucoseValue <= inclusiveTopLimit && logLine2.GlucoseValue <= inclusiveTopLimit)

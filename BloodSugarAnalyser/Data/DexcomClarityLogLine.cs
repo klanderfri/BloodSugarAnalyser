@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BloodSugarAnalyser.Enums;
+using BloodSugarAnalyser.Logic;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -7,7 +9,7 @@ namespace BloodSugarAnalyser.Data
     /// <summary>
     /// Class for object holding the data of a log line.
     /// </summary>
-    public class LogLine
+    public class DexcomClarityLogLine : ILogLine
     {
         /// <summary>
         /// The original raw log line information.
@@ -27,7 +29,7 @@ namespace BloodSugarAnalyser.Data
         /// <summary>
         /// The type of event that caused the creation of the log line.
         /// </summary>
-        public string EventType { get; set; }
+        public LogEventType EventType { get; set; }
 
         /// <summary>
         /// The subtype of event that caused the creation of the log line (for example, the type of alarm).
@@ -91,7 +93,7 @@ namespace BloodSugarAnalyser.Data
         {
             get
             {
-                var bloodSugarLogs = new HashSet<string>() { "EVG", "Calibration" };
+                var bloodSugarLogs = new HashSet<LogEventType>() { LogEventType.GlucoseMeasurement, LogEventType.Calibration };
                 return bloodSugarLogs.Contains(EventType);
             }
         }
@@ -100,7 +102,7 @@ namespace BloodSugarAnalyser.Data
         /// Creates an object holding the data of a log line.
         /// </summary>
         /// <param name="rawLine">The log line as a raw string (comma separated).</param>
-        public LogLine(string rawLine)
+        public DexcomClarityLogLine(string rawLine)
         {
             RawLine = rawLine;
             checkIntegrity();

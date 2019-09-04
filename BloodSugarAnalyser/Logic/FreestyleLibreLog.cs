@@ -1,4 +1,5 @@
 ﻿using BloodSugarAnalyser.Data;
+using BloodSugarAnalyser.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,14 @@ namespace BloodSugarAnalyser.Logic
         public override ExportDataType Type => ExportDataType.FreestyleLibre;
 
         public FreestyleLibreLog(IEnumerable<string> rawLines)
-            : base(rawLines.Skip(3)) { }
+            : base(rawLines, 3) { }
 
-        protected override LogLine GetLogLineFromRawLine(string rawLine)
+        protected override Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void ExtractHeaderInformation(string rawLine, int lineIndex)
         {
             throw new NotImplementedException();
         }

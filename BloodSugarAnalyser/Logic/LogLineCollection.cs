@@ -4,26 +4,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BloodSugarAnalyser.Data;
+using BloodSugarAnalyser.Enums;
 
 namespace BloodSugarAnalyser.Logic
 {
     public abstract class LogLineCollection : ILogLineCollection
     {
-        private IEnumerable<string> RawLines { get; set; }
         public abstract ExportDataType Type { get; }
+        public PatientInfo PatientInfo { get; protected set; }
+        private IEnumerable<string> RawLines { get; set; }
+        private int NumberOfHeaderLines { get; set; }
 
-        protected abstract LogLine GetLogLineFromRawLine(string rawLine);
+        protected abstract Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex);
+        protected abstract void ExtractHeaderInformation(string rawLine, int lineIndex);
 
-        protected LogLineCollection(IEnumerable<string> rawLines)
+        protected LogLineCollection(IEnumerable<string> rawLines, int numberOfHeaderLines)
         {
             RawLines = rawLines;
+            PatientInfo = new PatientInfo();
+            NumberOfHeaderLines = numberOfHeaderLines;
         }
 
-        public IEnumerable<LogLine> ReadLines()
+        public IEnumerable<ILogLine> ReadLines()
         {
+            int index = 0;
             foreach (var rawLine in RawLines)
             {
-                yield return GetLogLineFromRawLine(rawLine);
+                var result = TryGetLogLineFromRawLine(rawLine, index);
+
+                switch (result.Item1)
+                {
+                    case LogLineType.DataLine:
+                        yield return result.Item2;
+                        break;
+
+                    case LogLineType.HeaderLine:
+                        ExtractHeaderInformation(rawLine, index);
+                        break;
+
+                    default:
+                        var format = "Handling not implemented for value '{0}' of enum '{1}'.";
+                        var message = String.Format(format, result.Item1, nameof(LogLineType));
+                        throw new NotImplementedException(message);
+                }
+
+                index++;
             }
         }
     }

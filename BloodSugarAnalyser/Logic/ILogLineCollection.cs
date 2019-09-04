@@ -1,4 +1,5 @@
 ﻿using BloodSugarAnalyser.Data;
+using BloodSugarAnalyser.Enums;
 using System.Collections.Generic;
 
 namespace BloodSugarAnalyser.Logic
@@ -12,11 +13,17 @@ namespace BloodSugarAnalyser.Logic
         /// Gets the type of the log file.
         /// </summary>
         ExportDataType Type { get; }
-        
+
+        /// <summary>
+        /// Gets the information about the patient who the log belongs to.
+        /// </summary>
+        /// <remarks>The patient info will be empty if the read lines method havn't been called.</remarks>
+        PatientInfo PatientInfo { get; }
+
         /// <summary>
         /// Yields the lines in the log files.
         /// </summary>
         /// <returns>Iterator to the lines in the log file.</returns>
-        IEnumerable<LogLine> ReadLines();
+        IEnumerable<ILogLine> ReadLines();
     }
 }

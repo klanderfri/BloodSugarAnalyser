@@ -1,4 +1,4 @@
-﻿namespace BloodSugarAnalyser.Logic
+﻿namespace BloodSugarAnalyser.Enums
 {
     public enum ExportDataType
     {

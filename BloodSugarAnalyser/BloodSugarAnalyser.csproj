@@ -73,17 +73,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\LogLineType.cs" />
     <Compile Include="GUI\AnalyserForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GUI\AnalyserForm.Designer.cs">
       <DependentUpon>AnalyserForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Data\LogLine.cs" />
+    <Compile Include="Data\DexcomClarityLogLine.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Enums\LogEventType.cs" />
     <Compile Include="Logic\DexcomClarityLog.cs" />
-    <Compile Include="Logic\ExportDataType.cs" />
+    <Compile Include="Enums\ExportDataType.cs" />
     <Compile Include="Logic\FreestyleLibreLog.cs" />
+    <Compile Include="Logic\ILogLine.cs" />
     <Compile Include="Logic\ILogLineCollection.cs" />
     <Compile Include="Logic\LogAnalyser.cs" />
     <Compile Include="Logic\LogLineCollection.cs" />
