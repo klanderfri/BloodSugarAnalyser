@@ -170,6 +170,12 @@ namespace BloodSugarAnalyser.Logic
                 throw new ConstraintException("The log line index indicates lines in disorder.");
             }
 
+            //Verify that the timestamps are in order.
+            if (LastLogLine?.Timestamp != null && LastLogLine.Timestamp > logLine.Timestamp)
+            {
+                throw new ConstraintException("The log line timestamp indicates lines in disorder.");
+            }
+
             //Store the last log line.
             if (LastLogLine == null)
             {
@@ -286,6 +292,12 @@ namespace BloodSugarAnalyser.Logic
         /// <returns>The absolute difference in hours between the two points in time.</returns>
         private static decimal calculateTimeDifferenceInHours(DateTime d1, DateTime d2)
         {
+            if ((d1 - d2).TotalHours > 881)
+            {
+
+            }
+
+
             return Convert.ToDecimal(Math.Abs((d1 - d2).TotalHours));
         }
 
