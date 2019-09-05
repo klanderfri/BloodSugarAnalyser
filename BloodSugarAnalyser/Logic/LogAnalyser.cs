@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using BloodSugarAnalyser.Enums;
+using System.Windows.Forms;
 
 namespace BloodSugarAnalyser.Logic
 {
@@ -62,6 +63,11 @@ namespace BloodSugarAnalyser.Logic
         public readonly string Filepath;
 
         /// <summary>
+        /// Tells if the analyse should ignore the problem if it finds line indexes in the wrong order.
+        /// </summary>
+        private bool IgnoreIndexesInDisorder { get; set; }
+
+        /// <summary>
         /// Creates an object analysing a blood sugar log.
         /// </summary>
         /// <param name="filepath">The full filepath to the blood sugar log.</param>
@@ -84,6 +90,7 @@ namespace BloodSugarAnalyser.Logic
         private void analyseFile()
         {
             ulong lastIndex = 0;
+            IgnoreIndexesInDisorder = false;
 
             try
             {
@@ -96,10 +103,13 @@ namespace BloodSugarAnalyser.Logic
                 foreach (var logLine in lineCollection.ReadLines())
                 {
                     //Analyse the data in the log line.
-                    analyseLogLine(logLine, lineCollection.AssertIndexesAreInOrder);
+                    var continueAnalyse = analyseLogLine(logLine, lineCollection.AssertIndexesAreInOrder, lineCollection.HasStrictIndexOrder);
 
                     //Store the last line index to add to any raised exception.
                     lastIndex = logLine.Index;
+
+                    //Check if the analyse should continue.
+                    if (!continueAnalyse) { break; }
                 }
 
                 //Store the patient info.
@@ -162,18 +172,34 @@ namespace BloodSugarAnalyser.Logic
         /// </summary>
         /// <param name="logLine">The log line to analyse.</param>
         /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
-        private void analyseLogLine(ILogLine logLine, Func<ulong, ulong, bool> indexesAreInOrder)
+        /// <param name="hasStrictIndexOrder">Tells if the indexes of the log lines has to come in order.</param>
+        /// <returns>TRUE if the analyse should continue, else FALSE.</returns>
+        private bool analyseLogLine(ILogLine logLine, Func<ulong, ulong, bool> indexesAreInOrder, bool hasStrictIndexOrder)
         {
             //Verify the log line order to prevent lines in disorder.
-            if (!indexesAreInOrder(LastLogLine?.Index ?? 0, logLine.Index))
+            if (hasStrictIndexOrder && !indexesAreInOrder(LastLogLine?.Index ?? 0, logLine.Index) && !IgnoreIndexesInDisorder)
             {
-                throw new ConstraintException("The log line index indicates lines in disorder.");
+                //TODO: Show this message using events instead.
+                var message = "There are line indexes in the wrong order. This might indicate a faulty file. Do you want to ignore this anomaly and continue?";
+                var result = MessageBox.Show(message, "Indexes in disorder", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    IgnoreIndexesInDisorder = true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             //Verify that the timestamps are in order.
             if (LastLogLine?.Timestamp != null && LastLogLine.Timestamp > logLine.Timestamp)
             {
                 throw new ConstraintException("The log line timestamp indicates lines in disorder.");
+            }
+            if (LastLogLine?.Timestamp != null && LastLogLine.Timestamp == logLine.Timestamp)
+            {
+                throw new ConstraintException("Two log lines has the same timestamp.");
             }
 
             //Store the last log line.
@@ -197,6 +223,9 @@ namespace BloodSugarAnalyser.Logic
 
             //Store the current line to be used as the last line in the next iteration.
             LastLogLine = logLine;
+
+            //Continue the analyse.
+            return true;
         }
 
         /// <summary>
@@ -292,12 +321,6 @@ namespace BloodSugarAnalyser.Logic
         /// <returns>The absolute difference in hours between the two points in time.</returns>
         private static decimal calculateTimeDifferenceInHours(DateTime d1, DateTime d2)
         {
-            if ((d1 - d2).TotalHours > 881)
-            {
-
-            }
-
-
             return Convert.ToDecimal(Math.Abs((d1 - d2).TotalHours));
         }
 

@@ -13,6 +13,7 @@ namespace BloodSugarAnalyser.Logic
         public override CgmSystem CgmSystem => CgmSystem.DexcomClarity;
         public override TimeSpan WarmUpPeriod => new TimeSpan(2, 0, 0);
         public override char RawValueSeparator => ',';
+        public override bool HasStrictIndexOrder => true;
 
         public DexcomClarityLog(IEnumerable<string> rawLines)
             : base(rawLines) { }

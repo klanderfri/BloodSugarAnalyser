@@ -13,6 +13,7 @@ namespace BloodSugarAnalyser.Logic
         public override CgmSystem CgmSystem => CgmSystem.FreestyleLibre;
         public override TimeSpan WarmUpPeriod => new TimeSpan(1, 0, 0);
         public override char RawValueSeparator => '\t';
+        public override bool HasStrictIndexOrder => false;
 
         public FreestyleLibreLog(IEnumerable<string> rawLines)
             : base(rawLines) { }

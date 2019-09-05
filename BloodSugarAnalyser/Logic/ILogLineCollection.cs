@@ -27,6 +27,11 @@ namespace BloodSugarAnalyser.Logic
         TimeSpan WarmUpPeriod { get; }
 
         /// <summary>
+        /// Tells if the indexes of the log lines has to come in order.
+        /// </summary>
+        bool HasStrictIndexOrder { get; }
+
+        /// <summary>
         /// Yields the lines in the log files.
         /// </summary>
         /// <returns>Iterator to the lines in the log file.</returns>

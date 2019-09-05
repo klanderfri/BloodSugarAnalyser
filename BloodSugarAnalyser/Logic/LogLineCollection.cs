@@ -15,6 +15,7 @@ namespace BloodSugarAnalyser.Logic
         private IEnumerable<string> RawLines { get; set; }
         public abstract char RawValueSeparator { get; }
         public abstract TimeSpan WarmUpPeriod { get; }
+        public abstract bool HasStrictIndexOrder { get; }
 
         protected abstract Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex);
         protected abstract void ExtractHeaderInformation(string rawLine, int lineIndex);
