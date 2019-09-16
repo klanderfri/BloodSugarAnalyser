@@ -42,7 +42,7 @@ namespace BloodSugarAnalyser.Logic
         /// <summary>
         /// Checks the data integrety of the log line and throws an exception if something is wrong.
         /// </summary>
-        /// <exception cref="ConstraintException">Exception excplaining the data integrity violation found.</exception>
+        /// <exception cref="ConstraintException">Exception explaining the data integrity violation found.</exception>
         void CheckIntegrity();
     }
 }
