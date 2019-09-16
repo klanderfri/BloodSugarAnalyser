@@ -27,9 +27,13 @@ namespace BloodSugarAnalyser.Logic
         private ILogLine LastLogLine { get; set; }
 
         /// <summary>
-        /// The last line with a blood sugar value, the analyser analysed.
+        /// The last value from a glucose line the analyser analysed.
         /// </summary>
-        private ILogLine LastGlucoseLogLine { get; set; }
+        private decimal? LastGlucoseValue { get; set; }
+        /// <summary>
+        /// The last timestamp from a glucose line the analyser analysed.
+        /// </summary>
+        private DateTime? LastGlucoseTimestamp { get; set; }
 
         /// <summary>
         /// The area of blood sugar above the top limit (EBS, seconds * mmol/L).
@@ -100,16 +104,36 @@ namespace BloodSugarAnalyser.Logic
                 var lineCollection = getLineCollection(rawLines, fileType);
 
                 //Analyse the file, row by row (to prevent memory problems when analysing big files).
+                Func<IEnumerable<ILogLine>, bool> executeAnalyseOfLogLines = lines
+                    => analyseLogLines(lines, lineCollection.AssertIndexesAreInOrder, lineCollection.HasStrictIndexOrder);
+                var linesWithSameTimestamp = new List<ILogLine>();
+                var stopAnalyse = false;
                 foreach (var logLine in lineCollection.ReadLines())
                 {
-                    //Analyse the data in the log line.
-                    var continueAnalyse = analyseLogLine(logLine, lineCollection.AssertIndexesAreInOrder, lineCollection.HasStrictIndexOrder);
-
                     //Store the last line index to add to any raised exception.
                     lastIndex = logLine.Index;
 
-                    //Check if the analyse should continue.
-                    if (!continueAnalyse) { break; }
+                    //Check if there are multiple lines with the same timestamp.
+                    if (linesWithSameTimestamp.Any() && linesWithSameTimestamp.Last().Timestamp != logLine.Timestamp)
+                    {
+                        //Analyse the data in the log lines.
+                        stopAnalyse = !executeAnalyseOfLogLines(linesWithSameTimestamp);
+
+                        //Clear the now old log lines.
+                        linesWithSameTimestamp.Clear();
+
+                        //Check if the analyse should continue.
+                        if (stopAnalyse) { break; }
+                    }
+
+                    //Add the new line for analyse.
+                    linesWithSameTimestamp.Add(logLine);
+                }
+
+                //Analyse the last row as well.
+                if (!stopAnalyse)
+                {
+                    executeAnalyseOfLogLines(linesWithSameTimestamp);
                 }
 
                 //Store the patient info.
@@ -168,16 +192,86 @@ namespace BloodSugarAnalyser.Logic
         }
 
         /// <summary>
-        /// Analyses a log line and add the information to the log analyse result.
+        /// Analyses log lines and add the information to the log analyse result.
         /// </summary>
-        /// <param name="logLine">The log line to analyse.</param>
+        /// <param name="logLines">The log lines to analyse.</param>
         /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
         /// <param name="hasStrictIndexOrder">Tells if the indexes of the log lines has to come in order.</param>
         /// <returns>TRUE if the analyse should continue, else FALSE.</returns>
-        private bool analyseLogLine(ILogLine logLine, Func<ulong, ulong, bool> indexesAreInOrder, bool hasStrictIndexOrder)
+        private bool analyseLogLines(IEnumerable<ILogLine> logLines, Func<ulong, ulong, bool> indexesAreInOrder, bool hasStrictIndexOrder)
         {
+            //Make sure we actually got some lines to test.
+            if (!logLines.Any())
+            {
+                var format = "The parameter {0} does not contain any items.";
+                var message = String.Format(format, nameof(logLines));
+                throw new ArgumentException(message, nameof(logLines));
+            }
+
             //Verify the log line order to prevent lines in disorder.
-            if (hasStrictIndexOrder && !indexesAreInOrder(LastLogLine?.Index ?? 0, logLine.Index) && !IgnoreIndexesInDisorder)
+            if (!verifyIndexOrder(logLines, indexesAreInOrder, hasStrictIndexOrder))
+            {
+                return false;
+            }
+
+            //Verify that the timestamps are in order.
+            assertTimestampOrder(logLines);
+
+            //Store the last log line.
+            if (LastLogLine == null)
+            {
+                LastLogLine = logLines.First();
+            }
+
+            //Store the timestamps.
+            if (!TimeStampStart.HasValue)
+            {
+                TimeStampStart = logLines.First().Timestamp;
+            }
+            TimeStampEnd = logLines.Where(l => l.Timestamp.HasValue).Last().Timestamp;
+
+            //Analyse the data in the log line.
+            analyseBloodSugerData(logLines);
+
+            //Store the current line to be used as the last line in the next iteration.
+            LastLogLine = logLines.Last();
+
+            //Continue the analyse.
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies that the index order of the provided log lines is valid.
+        /// </summary>
+        /// <param name="logLines">The log lines to analyse.</param>
+        /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
+        /// <param name="hasStrictIndexOrder">Tells if the indexes of the log lines has to come in order.</param>
+        /// <returns>TRUE if the overall analyse should continue, else FALSE.</returns>
+        private bool verifyIndexOrder(IEnumerable<ILogLine> logLines, Func<ulong, ulong, bool> indexesAreInOrder, bool hasStrictIndexOrder)
+        {
+            //We dont care about the order in some cases.
+            if (!hasStrictIndexOrder) { return true; }
+            if (IgnoreIndexesInDisorder) { return true; }
+
+            //Extract the indexes to check.
+            var indexes = getPropertyIterator<ulong>(logLines, LastLogLine, "Index");
+
+            //Check indexes.
+            var orderIsOK = true;
+            var lastIndex = indexes.First();
+            foreach (var index in indexes.Skip(1))
+            {
+                if (!indexesAreInOrder(lastIndex, index))
+                {
+                    orderIsOK = false;
+                    break;
+                }
+
+                lastIndex = index;
+            }
+
+            //Check if we need to ask the user for input on what to do.
+            if (!orderIsOK)
             {
                 //TODO: Show this message using events instead.
                 var message = "There are line indexes in the wrong order. This might indicate a faulty file. Do you want to ignore this anomaly and continue?";
@@ -192,60 +286,78 @@ namespace BloodSugarAnalyser.Logic
                 }
             }
 
-            //Verify that the timestamps are in order.
-            if (LastLogLine?.Timestamp != null && LastLogLine.Timestamp > logLine.Timestamp)
-            {
-                throw new ConstraintException("The log line timestamp indicates lines in disorder.");
-            }
-            if (LastLogLine?.Timestamp != null && LastLogLine.Timestamp == logLine.Timestamp)
-            {
-                throw new ConstraintException("Two log lines has the same timestamp.");
-            }
-
-            //Store the last log line.
-            if (LastLogLine == null)
-            {
-                LastLogLine = logLine;
-            }
-
-            //Store the timestamps.
-            if (TimeStampStart == null)
-            {
-                TimeStampStart = logLine.Timestamp;
-            }
-            if (logLine.Timestamp != null)
-            {
-                TimeStampEnd = logLine.Timestamp;
-            }
-
-            //Analyse the data in the log line.
-            analyseBloodSugerData(logLine);
-
-            //Store the current line to be used as the last line in the next iteration.
-            LastLogLine = logLine;
-
             //Continue the analyse.
             return true;
         }
 
         /// <summary>
+        /// Asserts that the order of the timestamps of the provided log lines is valid.
+        /// </summary>
+        /// <param name="logLines">The log lines to analyse.</param>
+        private void assertTimestampOrder(IEnumerable<ILogLine> logLines)
+        {
+            //Extract the timestamps to check.
+            var timestamps = getPropertyIterator<DateTime>(logLines, LastLogLine, "Timestamp");
+
+            //Check timestamps.
+            var lastTimestamp = timestamps.First();
+            foreach (var timestamp in timestamps.Skip(1))
+            {
+                if (lastTimestamp > timestamp)
+                {
+                    throw new ConstraintException("The log line timestamp indicates lines in disorder.");
+                }
+
+                lastTimestamp = timestamp;
+            }
+        }
+
+        /// <summary>
+        /// Extracts an iterator iterating over a specific property of the provided loglines.
+        /// </summary>
+        /// <typeparam name="T">The type of the property.</typeparam>
+        /// <param name="logLines">The log lines containing the property.</param>
+        /// <param name="lastLogLine">The last line that was previously analysed.</param>
+        /// <param name="propertyName">The name of the property the iterator should iterate.</param>
+        /// <returns>The iterator.</returns>
+        private static IEnumerable<T> getPropertyIterator<T>(IEnumerable<ILogLine> logLines, ILogLine lastLogLine, string propertyName)
+        {
+            var property = logLines.First().GetType().GetProperty(propertyName);
+            var properties = new List<T>(logLines.Select(l => (T)property.GetValue(l)));
+
+            if (lastLogLine != null)
+            {
+                properties.Insert(0, (T)property.GetValue(lastLogLine));
+            }
+
+            return properties;
+        }
+
+        /// <summary>
         /// Analyse the log line data about the blood suger.
         /// </summary>
-        /// <param name="logLine">The log line to analyse.</param>
-        private void analyseBloodSugerData(ILogLine logLine)
+        /// <param name="logLines">The log lines to analyse.</param>
+        private void analyseBloodSugerData(IEnumerable<ILogLine> logLines)
         {
-            //Ignore logs not about blood sugar.
-            if (!logLine.IsGlucoseLog) { return; }
+            var glucoseLines = logLines.Where(l => l.IsGlucoseLog);
 
-            //Store the first log and continue to the next one.
-            if (LastGlucoseLogLine == null)
+            //Ignore logs not about blood sugar.
+            if (!glucoseLines.Any()) { return; }
+
+            //Store the first ever log and continue to the next one.
+            if (!LastGlucoseTimestamp.HasValue)
             {
-                LastGlucoseLogLine = logLine;
+                storeLastGlucoseInfo(glucoseLines);
                 return;
             }
 
             //Calculate the area above the top limit.
-            AreaAboveRange += calculateAreaAboveRange(LastGlucoseLogLine, logLine, InclusiveTopLimit);
+            AreaAboveRange += calculateAreaAboveRange(
+                LastGlucoseValue.Value,
+                LastGlucoseTimestamp.Value,
+                getAverageGlucose(glucoseLines).Value,
+                glucoseLines.Last().Timestamp.Value,
+                InclusiveTopLimit);
 
             //Calculate the average area above the top limit.
             var days = Convert.ToDecimal((TimeStampEnd - TimeStampStart).Value.TotalDays);
@@ -255,32 +367,45 @@ namespace BloodSugarAnalyser.Logic
             }
 
             //Store the log line for when the next line is analysed.
-            LastGlucoseLogLine = logLine;
+            storeLastGlucoseInfo(glucoseLines);
+        }
+
+        private void storeLastGlucoseInfo(IEnumerable<ILogLine> glucoseLines)
+        {
+            LastGlucoseTimestamp = glucoseLines.Last().Timestamp;
+            LastGlucoseValue = getAverageGlucose(glucoseLines);
+        }
+
+        private static decimal? getAverageGlucose(IEnumerable<ILogLine> glucoseLines)
+        {
+            return glucoseLines.Select(l => l.GlucoseValue).Average();
         }
 
         /// <summary>
         /// Calculates the area above the top limit for two blood sugar points.
         /// </summary>
-        /// <param name="logLine1">The first blood sugar log line.</param>
-        /// <param name="logLine2">The second blood sugar log line.</param>
+        /// <param name="glucoseValue1">The first blood sugar glucose value.</param>
+        /// <param name="timestamp1">The timestamp of the first blood sugar.</param>
+        /// <param name="glucoseValue2">The second blood sugar glucose value.</param>
+        /// <param name="timestamp2">The timestamp of the second blood sugar.</param>
         /// <param name="inclusiveTopLimit">The inclusive limit of good blood sugar.</param>
         /// <returns>The area above the top limit (seconds * mmol/L).</returns>
-        private static decimal calculateAreaAboveRange(ILogLine logLine1, ILogLine logLine2, decimal inclusiveTopLimit)
+        private static decimal calculateAreaAboveRange(decimal glucoseValue1, DateTime timestamp1, decimal glucoseValue2, DateTime timestamp2, decimal inclusiveTopLimit)
         {
             //Both values are BELOW the limit.
-            if (logLine1.GlucoseValue <= inclusiveTopLimit && logLine2.GlucoseValue <= inclusiveTopLimit)
+            if (glucoseValue1 <= inclusiveTopLimit && glucoseValue2 <= inclusiveTopLimit)
             {
                 return 0;
             }
 
             //Both values are ABOVE the limit.
-            else if (logLine1.GlucoseValue > inclusiveTopLimit && logLine2.GlucoseValue > inclusiveTopLimit)
+            else if (glucoseValue1 > inclusiveTopLimit && glucoseValue2 > inclusiveTopLimit)
             {
-                var hoursBetween = calculateTimeDifferenceInHours(logLine1.Timestamp.Value, logLine2.Timestamp.Value);
-                var minValue = Math.Min(logLine1.GlucoseValue.Value, logLine2.GlucoseValue.Value);
+                var hoursBetween = calculateTimeDifferenceInHours(timestamp1, timestamp2);
+                var minValue = Math.Min(glucoseValue1, glucoseValue2);
                 var area = (minValue - inclusiveTopLimit) * hoursBetween;
 
-                var maxValue = Math.Max(logLine1.GlucoseValue.Value, logLine2.GlucoseValue.Value);
+                var maxValue = Math.Max(glucoseValue1, glucoseValue2);
                 var triangleArea = (maxValue - minValue) * hoursBetween / 2;
                 area += triangleArea;
 
@@ -292,9 +417,9 @@ namespace BloodSugarAnalyser.Logic
             else
             {
                 //Find the line traversing the blood sugar values.
-                var hoursBetween = calculateTimeDifferenceInHours(logLine1.Timestamp.Value, logLine2.Timestamp.Value);
-                var p1 = new PointF(0, (float)(logLine1.GlucoseValue));
-                var p2 = new PointF((float)hoursBetween, (float)(logLine2.GlucoseValue));
+                var hoursBetween = calculateTimeDifferenceInHours(timestamp1, timestamp2);
+                var p1 = new PointF(0, (float)(glucoseValue1));
+                var p2 = new PointF((float)hoursBetween, (float)(glucoseValue2));
                 var line = new MathLine(p1, p2);
 
                 //Find where the line crosses the top limit.
