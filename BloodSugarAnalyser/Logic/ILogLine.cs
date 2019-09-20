@@ -15,9 +15,14 @@ namespace BloodSugarAnalyser.Logic
         string RawLine { get; }
 
         /// <summary>
-        /// The index of the log line.
+        /// The index of the line in the file (zero based).
         /// </summary>
-        ulong Index { get; set; }
+        int LineIndex { get; set; }
+
+        /// <summary>
+        /// The ID of the log line.
+        /// </summary>
+        ulong ID { get; set; }
 
         /// <summary>
         /// The time when the log line was created.
@@ -30,9 +35,14 @@ namespace BloodSugarAnalyser.Logic
         decimal? GlucoseValue { get; set; }
 
         /// <summary>
-        /// The type of event that caused the creation of the log line.
+        /// The type of log line.
         /// </summary>
-        LogEventType EventType { get; set; }
+        LogLineType LineType { get; set; }
+
+        /// <summary>
+        /// The type of event that caused the creation of the data log line.
+        /// </summary>
+        LogEventType DataEventType { get; set; }
 
         /// <summary>
         /// Tells if the log line holds a blood sugar value.

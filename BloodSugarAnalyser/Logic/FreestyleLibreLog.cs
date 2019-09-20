@@ -18,28 +18,23 @@ namespace BloodSugarAnalyser.Logic
         public FreestyleLibreLog(IEnumerable<string> rawLines)
             : base(rawLines) { }
 
-        protected override Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex)
+        protected override ILogLine TryGetLogLineFromRawLine(string rawLine, int lineIndex)
         {
             var values = SplitRawLineIntoValues(rawLine);
             var rowStartsWithInteger = isNumeric(values[0]);
 
-            if (rowStartsWithInteger)
+            var logLine = new FreestyleLibreLogLine(rawLine)
             {
-                var logLine = new FreestyleLibreLogLine(rawLine)
-                {
-                    Index = Convert.ToUInt64(values[0]),
-                    Timestamp = values[1] == "" ? (DateTime?)null : Convert.ToDateTime(values[1]),
-                    GlucoseValue = GetDecimalFromString(values[3]) ?? GetDecimalFromString(values[4]) ?? GetDecimalFromString(values[12]),
-                    EventType = getEventtypeFromData(values[3], values[4], values[12]),
-                };
-                logLine.CheckIntegrity();
+                ID = Convert.ToUInt64(values[0]),
+                LineIndex = lineIndex,
+                Timestamp = values[1] == "" ? (DateTime?)null : Convert.ToDateTime(values[1]),
+                LineType = rowStartsWithInteger ? LogLineType.DataLine : LogLineType.HeaderLine,
+                GlucoseValue = GetDecimalFromString(values[3]) ?? GetDecimalFromString(values[4]) ?? GetDecimalFromString(values[12]),
+                DataEventType = getEventtypeFromData(values[3], values[4], values[12]),
+            };
+            logLine.CheckIntegrity();
 
-                return new Tuple<LogLineType, ILogLine>(LogLineType.DataLine, logLine);
-            }
-            else
-            {
-                return new Tuple<LogLineType, ILogLine>(LogLineType.HeaderLine, null);
-            }
+            return logLine;
         }
 
         private LogEventType getEventtypeFromData(string historicGlucose, string readGlucose, string testedGlucose)

@@ -102,39 +102,17 @@ namespace BloodSugarAnalyser.Logic
                 var rawLines = File.ReadLines(Filepath);
                 var fileType = getFileType(rawLines);
                 var lineCollection = getLineCollection(rawLines, fileType);
+                
+                //Get the method analysing a group of lines with the same timestamp.
+                Func<IEnumerable<ILogLine>, bool> analyseTimestampGroup = 
+                    lines => analyseLogLines(lines, lineCollection.AssertIndexesAreInOrder, lineCollection.HasStrictIndexOrder);
 
-                //Analyse the file, row by row (to prevent memory problems when analysing big files).
-                Func<IEnumerable<ILogLine>, bool> executeAnalyseOfLogLines = lines
-                    => analyseLogLines(lines, lineCollection.AssertIndexesAreInOrder, lineCollection.HasStrictIndexOrder);
-                var linesWithSameTimestamp = new List<ILogLine>();
-                var stopAnalyse = false;
-                foreach (var logLine in lineCollection.ReadLines())
-                {
-                    //Store the last line index to add to any raised exception.
-                    lastIndex = logLine.Index;
-
-                    //Check if there are multiple lines with the same timestamp.
-                    if (linesWithSameTimestamp.Any() && linesWithSameTimestamp.Last().Timestamp != logLine.Timestamp)
-                    {
-                        //Analyse the data in the log lines.
-                        stopAnalyse = !executeAnalyseOfLogLines(linesWithSameTimestamp);
-
-                        //Clear the now old log lines.
-                        linesWithSameTimestamp.Clear();
-
-                        //Check if the analyse should continue.
-                        if (stopAnalyse) { break; }
-                    }
-
-                    //Add the new line for analyse.
-                    linesWithSameTimestamp.Add(logLine);
-                }
-
-                //Analyse the last row as well.
-                if (!stopAnalyse)
-                {
-                    executeAnalyseOfLogLines(linesWithSameTimestamp);
-                }
+                //Analyse the log lines.
+                analyseLogLines(
+                    lineCollection.DataLogLines,
+                    analyseTimestampGroup,
+                    DateTime.MinValue,
+                    true);
 
                 //Store the patient info.
                 PatientInfo = lineCollection.PatientInfo;
@@ -195,10 +173,64 @@ namespace BloodSugarAnalyser.Logic
         /// Analyses log lines and add the information to the log analyse result.
         /// </summary>
         /// <param name="logLines">The log lines to analyse.</param>
+        /// <param name="analyseTimestampGroup">Method analysing a group of log lines with identical timestamps.</param>
+        /// <param name="lastTimestamp">The timestamp of the last analysed group.</param>
+        /// <param name="continueAnalyse">TRUE if the analyse should continue, else FALSE.</param>
+        /// <returns>TRUE if the analyse should continue, else FALSE.</returns>
+        private bool analyseLogLines(
+            Queue<ILogLine> logLines,
+            Func<IEnumerable<ILogLine>, bool> analyseTimestampGroup,
+            DateTime lastTimestamp,
+            bool continueAnalyse)
+        {
+            //Check if the analyse should continue.
+            if (!continueAnalyse //The analyse needs to stop prematurely.
+                || !logLines.Any()) //The analyse is finished when there are no more lines.
+            {
+                return continueAnalyse;
+            }
+
+            //Find the lines with the same timestamp.
+            var linesWithSameTimestamp = new List<ILogLine>();
+            DateTime currentTimestamp;
+            do
+            {
+                var line = logLines.Dequeue();
+                currentTimestamp = line.Timestamp.Value;
+                linesWithSameTimestamp.Add(line);
+
+            } while (logLines.Any() && logLines.Peek().Timestamp == currentTimestamp);
+
+            //Verify the timestamp order.
+            if (lastTimestamp == currentTimestamp)
+            {
+                var format = "The parameter {0} contains timestamps indicating the lines should have been analysed in the last run.";
+                var message = String.Format(format, nameof(logLines));
+                throw new ArgumentException(message, nameof(logLines));
+            }
+            if (lastTimestamp > currentTimestamp)
+            {
+                throw new ConstraintException("The log line timestamp indicates lines in disorder.");
+            }
+
+            //Analyse the lines.
+            continueAnalyse = analyseTimestampGroup(linesWithSameTimestamp);
+
+            //Analyse the rest of the lines.
+            return analyseLogLines(logLines, analyseTimestampGroup, currentTimestamp, continueAnalyse);
+        }
+
+        /// <summary>
+        /// Analyses log lines and add the information to the log analyse result.
+        /// </summary>
+        /// <param name="logLines">The log lines to analyse (should have identical timestamps).</param>
         /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
         /// <param name="hasStrictIndexOrder">Tells if the indexes of the log lines has to come in order.</param>
         /// <returns>TRUE if the analyse should continue, else FALSE.</returns>
-        private bool analyseLogLines(IEnumerable<ILogLine> logLines, Func<ulong, ulong, bool> indexesAreInOrder, bool hasStrictIndexOrder)
+        private bool analyseLogLines(
+            IEnumerable<ILogLine> logLines,
+            Func<ulong, ulong, bool> indexesAreInOrder,
+            bool hasStrictIndexOrder)
         {
             //Make sure we actually got some lines to test.
             if (!logLines.Any())
@@ -208,14 +240,20 @@ namespace BloodSugarAnalyser.Logic
                 throw new ArgumentException(message, nameof(logLines));
             }
 
+            //All the lines should have the same timestamp.
+            var hasMoreThanOneTimestamp = logLines.Select(l => l.Timestamp).GroupBy(t => t).Skip(1).Any();
+            if (hasMoreThanOneTimestamp)
+            {
+                var format = "The parameter {0} contains log lines with more than one timestamp.";
+                var message = String.Format(format, nameof(logLines));
+                throw new ArgumentException(message, nameof(logLines));
+            }
+
             //Verify the log line order to prevent lines in disorder.
-            if (!verifyIndexOrder(logLines, indexesAreInOrder, hasStrictIndexOrder))
+            if (!verifyIdOrder(logLines, indexesAreInOrder, hasStrictIndexOrder))
             {
                 return false;
             }
-
-            //Verify that the timestamps are in order.
-            assertTimestampOrder(logLines);
 
             //Store the last log line.
             if (LastLogLine == null)
@@ -241,41 +279,41 @@ namespace BloodSugarAnalyser.Logic
         }
 
         /// <summary>
-        /// Verifies that the index order of the provided log lines is valid.
+        /// Verifies that the order of the ID:s of the provided log lines is valid.
         /// </summary>
         /// <param name="logLines">The log lines to analyse.</param>
-        /// <param name="indexesAreInOrder">A method verifying the order of the indexes of two log lines.</param>
+        /// <param name="idsAreInOrder">A method verifying the order of the indexes of two log lines.</param>
         /// <param name="hasStrictIndexOrder">Tells if the indexes of the log lines has to come in order.</param>
         /// <returns>TRUE if the overall analyse should continue, else FALSE.</returns>
-        private bool verifyIndexOrder(IEnumerable<ILogLine> logLines, Func<ulong, ulong, bool> indexesAreInOrder, bool hasStrictIndexOrder)
+        private bool verifyIdOrder(IEnumerable<ILogLine> logLines, Func<ulong, ulong, bool> idsAreInOrder, bool hasStrictIndexOrder)
         {
             //We dont care about the order in some cases.
             if (!hasStrictIndexOrder) { return true; }
             if (IgnoreIndexesInDisorder) { return true; }
 
             //Extract the indexes to check.
-            var indexes = getPropertyIterator<ulong>(logLines, LastLogLine, "Index");
+            var ids = getPropertyIterator<ulong>(logLines, LastLogLine, "ID");
 
             //Check indexes.
             var orderIsOK = true;
-            var lastIndex = indexes.First();
-            foreach (var index in indexes.Skip(1))
+            var lastID = ids.First();
+            foreach (var id in ids.Skip(1))
             {
-                if (!indexesAreInOrder(lastIndex, index))
+                if (!idsAreInOrder(lastID, id))
                 {
                     orderIsOK = false;
                     break;
                 }
 
-                lastIndex = index;
+                lastID = id;
             }
 
             //Check if we need to ask the user for input on what to do.
             if (!orderIsOK)
             {
                 //TODO: Show this message using events instead.
-                var message = "There are line indexes in the wrong order. This might indicate a faulty file. Do you want to ignore this anomaly and continue?";
-                var result = MessageBox.Show(message, "Indexes in disorder", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                var message = "There are line ID:s in the wrong order. This might indicate a faulty file. Do you want to ignore this anomaly and continue?";
+                var result = MessageBox.Show(message, "ID:s in disorder", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
                     IgnoreIndexesInDisorder = true;
@@ -288,28 +326,6 @@ namespace BloodSugarAnalyser.Logic
 
             //Continue the analyse.
             return true;
-        }
-
-        /// <summary>
-        /// Asserts that the order of the timestamps of the provided log lines is valid.
-        /// </summary>
-        /// <param name="logLines">The log lines to analyse.</param>
-        private void assertTimestampOrder(IEnumerable<ILogLine> logLines)
-        {
-            //Extract the timestamps to check.
-            var timestamps = getPropertyIterator<DateTime>(logLines, LastLogLine, "Timestamp");
-
-            //Check timestamps.
-            var lastTimestamp = timestamps.First();
-            foreach (var timestamp in timestamps.Skip(1))
-            {
-                if (lastTimestamp > timestamp)
-                {
-                    throw new ConstraintException("The log line timestamp indicates lines in disorder.");
-                }
-
-                lastTimestamp = timestamp;
-            }
         }
 
         /// <summary>

@@ -34,8 +34,8 @@ namespace BloodSugarAnalyser.Logic
         /// <summary>
         /// Yields the lines in the log files.
         /// </summary>
-        /// <returns>Iterator to the lines in the log file.</returns>
-        IEnumerable<ILogLine> ReadLines();
+        /// <returns>Queue holding the lines in the log file.</returns>
+        Queue<ILogLine> DataLogLines { get; }
 
         /// <summary>
         /// Verifies that the indexes of two lines are in order.

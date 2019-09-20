@@ -17,11 +17,16 @@ namespace BloodSugarAnalyser.Logic
         /// The original raw log line information.
         /// </summary>
         public string RawLine { get; private set; }
-        
+
+        /// <summary>
+        /// The index of the line in the file (zero based).
+        /// </summary>
+        public int LineIndex { get; set; }
+
         /// <summary>
         /// The index of the log line.
         /// </summary>
-        public ulong Index { get; set; }
+        public ulong ID { get; set; }
 
         /// <summary>
         /// The time when the log line was created.
@@ -34,10 +39,15 @@ namespace BloodSugarAnalyser.Logic
         public decimal? GlucoseValue { get; set; }
 
         /// <summary>
-        /// The type of event that caused the creation of the log line.
+        /// The type of log line.
         /// </summary>
-        public LogEventType EventType { get; set; }
-        
+        public LogLineType LineType { get; set; }
+
+        /// <summary>
+        /// The type of event that caused the creation of the data log line.
+        /// </summary>
+        public LogEventType DataEventType { get; set; }
+
         /// <summary>
         /// Tells if the log line holds a blood sugar value.
         /// </summary>
@@ -46,7 +56,7 @@ namespace BloodSugarAnalyser.Logic
             get
             {
                 var bloodSugarLogs = new HashSet<LogEventType>() { LogEventType.GlucoseMeasurement, LogEventType.Calibration };
-                return bloodSugarLogs.Contains(EventType);
+                return bloodSugarLogs.Contains(DataEventType);
             }
         }
 
@@ -64,6 +74,10 @@ namespace BloodSugarAnalyser.Logic
         /// </summary>
         public void CheckIntegrity()
         {
+            if (IsGlucoseLog && LineType != LogLineType.DataLine)
+            {
+                throw new ConstraintException("A blood sugar log must be a data log line.");
+            }
             if (IsGlucoseLog && GlucoseValue == null)
             {
                 throw new ConstraintException("A blood sugar log without any blood sugar value was found.");

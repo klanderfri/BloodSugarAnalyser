@@ -16,8 +16,9 @@ namespace BloodSugarAnalyser.Logic
         public abstract char RawValueSeparator { get; }
         public abstract TimeSpan WarmUpPeriod { get; }
         public abstract bool HasStrictIndexOrder { get; }
+        public Queue<ILogLine> DataLogLines { get; private set; }
 
-        protected abstract Tuple<LogLineType, ILogLine> TryGetLogLineFromRawLine(string rawLine, int lineIndex);
+        protected abstract ILogLine TryGetLogLineFromRawLine(string rawLine, int lineIndex);
         protected abstract void ExtractHeaderInformation(string rawLine, int lineIndex);
         public abstract bool AssertIndexesAreInOrder(ulong firstIndex, ulong secondIndex);
 
@@ -25,33 +26,53 @@ namespace BloodSugarAnalyser.Logic
         {
             RawLines = rawLines;
             PatientInfo = new PatientInfo();
+            var logLines = new Queue<ILogLine>(getLogLineIterator());
+            readHeaderLogLines(logLines);
+            DataLogLines = logLines;
         }
 
-        public IEnumerable<ILogLine> ReadLines()
+        private void readHeaderLogLines(Queue<ILogLine> logLines)
         {
-            int index = 0;
+            if (!logLines.Any()
+                || logLines.Peek().LineType != LogLineType.HeaderLine)
+            {
+                //No more lines at all
+                //or all header lines has been read.
+                return;
+            }
+
+            var line = logLines.Dequeue();
+            ExtractHeaderInformation(line.RawLine, line.LineIndex);
+
+            readHeaderLogLines(logLines);
+        }
+
+        private IEnumerable<ILogLine> getLogLineIterator()
+        {
+            var lineIndex = 0;
             foreach (var rawLine in RawLines)
             {
-                var result = TryGetLogLineFromRawLine(rawLine, index);
+                var smartLine = TryGetLogLineFromRawLine(rawLine, lineIndex);
 
-                switch (result.Item1)
+                switch (smartLine.LineType)
                 {
                     case LogLineType.DataLine:
-                        result.Item2.CheckIntegrity();
-                        yield return result.Item2;
+                        smartLine.CheckIntegrity();
                         break;
 
                     case LogLineType.HeaderLine:
-                        ExtractHeaderInformation(rawLine, index);
+                        //Do nothing. Just fall through and return the line.
                         break;
 
                     default:
                         var format = "Handling not implemented for value '{0}' of enum '{1}'.";
-                        var message = String.Format(format, result.Item1, nameof(LogLineType));
+                        var message = String.Format(format, smartLine.LineType, nameof(LogLineType));
                         throw new NotImplementedException(message);
                 }
 
-                index++;
+                yield return smartLine;
+
+                lineIndex++;
             }
         }
 
